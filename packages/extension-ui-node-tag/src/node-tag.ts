@@ -13,9 +13,7 @@ const NODE_TAG_STYLES = `
 [data-ui-node-tag-editor] h4,
 [data-ui-node-tag-editor] h5,
 [data-ui-node-tag-editor] h6,
-[data-ui-node-tag-editor] td,
-[data-ui-node-tag-editor] div:not(li[data-type="timelineItem"] > div):not(.ProseMirror-gapcursor),
-[data-ui-node-tag-editor] li[data-type="timelineItem"] {
+[data-ui-node-tag-editor] td {
   border: 1px dashed #aaa;
 }
 
