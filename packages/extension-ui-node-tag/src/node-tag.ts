@@ -2,13 +2,48 @@ import type { EditorState } from "@tiptap/pm/state";
 import type { EditorView } from "@tiptap/pm/view";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+
+const NODE_TAG_STYLE_ID = "ui-node-name-styles";
+const NODE_TAG_STYLES = `
+[data-ui-node-tag-editor] > *,
+[data-ui-node-tag-editor] p,
+[data-ui-node-tag-editor] h1,
+[data-ui-node-tag-editor] h2,
+[data-ui-node-tag-editor] h3,
+[data-ui-node-tag-editor] h4,
+[data-ui-node-tag-editor] h5,
+[data-ui-node-tag-editor] h6,
+[data-ui-node-tag-editor] td,
+[data-ui-node-tag-editor] div:not(li[data-type="timelineItem"] > div):not(.ProseMirror-gapcursor),
+[data-ui-node-tag-editor] li[data-type="timelineItem"] {
+  border: 1px dashed #aaa;
+}
+
+[data-ui-node-name-container] {
+  position: absolute;
+  pointer-events: none;
+}
+
+.ui-node-name {
+  position: absolute;
+  font-size: 10px;
+  color: gray;
+  user-select: none;
+  padding: 0;
+  line-height: 1;
+  background-color: white;
+  margin: 0 4px;
+}
+`;
+
 export interface NodeTagOptions {
+  /** エディタの内側の余白(px) */
   wrapperPadding: number;
-  // 許可するleafnode
+  /** 許可するleafnode */
   allowedNodeTypes: string[];
-  // 無視するnode
+  /** 無視するnode */
   ignoreNodeTypes: string[];
-  // 無視する親要素
+  /** 無視する親要素 */
   ignoreParentNodeTypes: string[];
 }
 
@@ -16,9 +51,9 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   name: "UiNodeName",
   addOptions() {
     return {
-      wrapperPadding: 16,
-      allowedNodeTypes: ["horizontalRule"],
-      ignoreNodeTypes: ["tableRow", "tableCell", "listItem"],
+      wrapperPadding: 0,
+      allowedNodeTypes: [],
+      ignoreNodeTypes: [],
       ignoreParentNodeTypes: [],
     };
   },
@@ -100,7 +135,7 @@ function updateTags(view: EditorView, options: NodeTagOptions, container: HTMLEl
   doc.descendants((node, pos, parent) => {
     if (options.ignoreNodeTypes.includes(node.type.name)) return;
 
-    if (options.ignoreParentNodeTypes.includes(parent.type.name)) return;
+    if (parent && options.ignoreParentNodeTypes.includes(parent.type.name)) return;
 
     if (options.allowedNodeTypes.includes(node.type.name) || !node.isLeaf) {
       // 許可していないleafNodeを除いたすべてのnode名タグを作成
@@ -134,15 +169,31 @@ function updateTags(view: EditorView, options: NodeTagOptions, container: HTMLEl
 
 function getParentRect(editorView: EditorView) {
   const parent = editorView.dom.parentElement;
+  if (!parent) throw new Error("NodeTag requires the editor to have a parent element");
   return parent.getBoundingClientRect();
 }
 
 function getContainer(editorView: EditorView) {
-  let container = document.querySelector<HTMLDivElement>(".ui-node-name-container");
+  ensureStyles();
+  editorView.dom.dataset.uiNodeTagEditor = "";
+  const parent = editorView.dom.parentElement;
+  if (!parent) throw new Error("NodeTag requires the editor to have a parent element");
+  parent.style.position = "relative";
+
+  let container = document.querySelector<HTMLDivElement>("[data-ui-node-name-container]");
   if (!container) {
     container = document.createElement("div");
-    container.className = "ui-node-name-container";
-    editorView.dom.parentElement.appendChild(container);
+    container.dataset.uiNodeNameContainer = "";
+    parent.appendChild(container);
   }
   return container;
+}
+
+function ensureStyles() {
+  if (document.getElementById(NODE_TAG_STYLE_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = NODE_TAG_STYLE_ID;
+  style.textContent = NODE_TAG_STYLES;
+  document.head.appendChild(style);
 }
