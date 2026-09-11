@@ -1,3 +1,11 @@
-# editor-extensions
+# Vite+ モノレポスターター
 
-Editor extensions and shared tooling.
+Vite+ モノレポを作成するためのスターターテンプレートです。
+
+## 開発
+
+- 準備状況を確認します。
+
+```bash
+vp run ready
+```
