@@ -5,6 +5,8 @@ catalogMode: strict
 
 catalog:
   "@types/node": ^24
+  "@tiptap/core": ^3.31.0
+  "@tiptap/pm": ^3.31.0
   typescript: 6.0.3
   vite: npm:@voidzero-dev/vite-plus-core@0.2.9
   vite-plus: 0.2.9

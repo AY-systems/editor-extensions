@@ -1,9 +1,14 @@
 {
   "compilerOptions": {
-    "noEmit": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
     "esModuleInterop": true
-  }
+  },
+  "include": ["**/*.d.ts", "**/*.ts", "**/*.vue"],
+  "exclude": ["**/node_modules", "**/dist"]
 }
