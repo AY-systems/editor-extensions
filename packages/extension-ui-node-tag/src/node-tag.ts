@@ -19,7 +19,7 @@ const NODE_TAG_STYLES = `
   border: 1px dashed #aaa;
 }
 
-[data-ui-node-name-container] {
+[data-ui-node-tag-container] {
   position: absolute;
   pointer-events: none;
 }
@@ -180,10 +180,10 @@ function getContainer(editorView: EditorView) {
   if (!parent) throw new Error("NodeTag requires the editor to have a parent element");
   parent.style.position = "relative";
 
-  let container = document.querySelector<HTMLDivElement>("[data-ui-node-name-container]");
+  let container = document.querySelector<HTMLDivElement>("[data-ui-node-tag-container]");
   if (!container) {
     container = document.createElement("div");
-    container.dataset.uiNodeNameContainer = "";
+    container.dataset.uiNodeTagContainer = "";
     parent.appendChild(container);
   }
   return container;
