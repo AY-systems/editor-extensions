@@ -17,11 +17,13 @@
     }
   },
   "scripts": {
-    "build": "vp pack"
+    "build": "vp pack",
+    "prepare": "vp pack"
   },
   "devDependencies": {
     "@tiptap/core": "catalog:",
-    "@tiptap/pm": "catalog:"
+    "@tiptap/pm": "catalog:",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "@tiptap/core": "catalog:",
