@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+coverage/
+
+# Go cache
+go-cache/
+.go-cache/
+
+# Local environment
+.env
+.env.*
+!.env.example
