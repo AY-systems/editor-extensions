@@ -190,7 +190,7 @@ function getContainer(editorView: EditorView) {
     : undefined;
   if (originalPosition !== undefined) parent.style.position = "relative";
 
-  let container = document.querySelector<HTMLDivElement>("[data-ui-node-tag-container]");
+  let container = parent.querySelector<HTMLDivElement>("[data-ui-node-tag-container]");
   if (!container) {
     container = document.createElement("div");
     container.dataset.uiNodeTagContainer = "";
