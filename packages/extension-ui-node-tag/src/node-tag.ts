@@ -78,7 +78,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
 
   onCreate() {
-    updateTags(this.editor.view, this.options, getContainer(this.editor.view));
+    updateTags(this.editor.view, this.options, getContainer(this.editor.view).container);
   },
 });
 
@@ -97,7 +97,10 @@ class NodeTagView {
   ) {
     this.options = options;
 
-    this.container = getContainer(editorView);
+    const { container, parent, originalPosition } = getContainer(editorView);
+    this.container = container;
+    this.parent = parent;
+    this.originalPosition = originalPosition;
 
     this.resizeObserver = new ResizeObserver(() => {
       updateTags(this.editorView, this.options, this.container);
@@ -114,7 +117,13 @@ class NodeTagView {
   destroy() {
     this.resizeObserver.disconnect();
     this.container.remove();
+    if (this.originalPosition !== undefined && this.parent.style.position === "relative") {
+      this.parent.style.position = this.originalPosition;
+    }
   }
+
+  parent: HTMLElement;
+  originalPosition: string | undefined;
 }
 
 function updateTags(view: EditorView, options: NodeTagOptions, container: HTMLElement) {
@@ -176,7 +185,10 @@ function getContainer(editorView: EditorView) {
   editorView.dom.dataset.uiNodeTagEditor = "";
   const parent = editorView.dom.parentElement;
   if (!parent) throw new Error("NodeTag requires the editor to have a parent element");
-  parent.style.position = "relative";
+  const originalPosition = getComputedStyle(parent).position === "static"
+    ? parent.style.position
+    : undefined;
+  if (originalPosition !== undefined) parent.style.position = "relative";
 
   let container = document.querySelector<HTMLDivElement>("[data-ui-node-tag-container]");
   if (!container) {
@@ -184,7 +196,7 @@ function getContainer(editorView: EditorView) {
     container.dataset.uiNodeTagContainer = "";
     parent.appendChild(container);
   }
-  return container;
+  return { container, parent, originalPosition };
 }
 
 function ensureStyles() {
