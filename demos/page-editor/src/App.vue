@@ -32,18 +32,3 @@ watch(
     <EditorContent :editor />
   </div>
 </template>
-<style>
-div.editor_view {
-  > * {
-    margin: 1rem 0;
-  }
-
-  > :first-child {
-    margin-top: 0;
-  }
-
-  > :last-child {
-    margin-bottom: 0;
-  }
-}
-</style>

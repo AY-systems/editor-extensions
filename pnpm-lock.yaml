@@ -181,6 +181,9 @@ importers:
       extension-classname:
         specifier: workspace:^
         version: link:../../packages/extension-classname
+      extension-div:
+        specifier: workspace:^
+        version: link:../../packages/extension-div
       extension-ui-node-tag:
         specifier: workspace:^
         version: link:../../packages/extension-ui-node-tag

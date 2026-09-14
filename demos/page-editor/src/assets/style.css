@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+.editor_view {
+  ul,
+  li,
+  div {
+    padding: 0.6rem 0.3rem;
+  }
+
+  > *:not(:last-child),
+  li:not(:last-child),
+  div > *:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+}
