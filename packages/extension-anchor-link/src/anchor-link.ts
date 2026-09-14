@@ -20,15 +20,15 @@ const ANCHOR_LINK_STYLES = `
   position: relative;
 }
 *[data-type="anchor_link"]::after {
+  content: "#" attr(id);
   position: absolute;
-  transform: translate(50%, -50%);
-  top: 0;
-  right: 0;
-  content: "";
-  width: 1rem;
-  height: 1rem;
-  background-image: url(https://api.iconify.design/mdi:link-box-variant.svg?color=%23888888);
-  background-repeat: no-repeat;
+  z-index: 1;
+  top: -0.5rem;
+  right: 0.1rem;
+  font-size: 0.6rem;
+  line-height: 0.8rem;
+  color: #888;
+  background: rgba(255, 255, 255);
   user-select: none;
   pointer-events: none;
 }
