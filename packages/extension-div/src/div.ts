@@ -1,4 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 
 export interface DivOptions {
   HTMLAttributes: Record<string, any>;
@@ -12,6 +13,10 @@ declare module "@tiptap/core" {
        * 選択中のnodeをdivで囲む
        */
       wrapDiv: () => ReturnType;
+      /**
+       * 選択中のDiv要素を解除する
+       */
+      unwrapDiv: () => ReturnType;
       /**
        * 選択中のnodeをdiv要素に切り替えする
        */
@@ -45,13 +50,13 @@ export const Div = Node.create<DivOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const style = Object.entries(this.options.style)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("; ");
+
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        style: Object.entries(this.options.style)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join("; "),
-      }),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, style ? { style } : {}),
       0,
     ];
   },
@@ -60,18 +65,49 @@ export const Div = Node.create<DivOptions>({
     return {
       toggleDiv:
         () =>
-        ({ editor, chain }) => {
-          if (editor.isActive(this.name)) {
-            return chain().lift(this.name).run();
-          }
+        ({ editor, chain }) =>
+          editor.isActive(this.name)
+            ? chain().unwrapDiv().run()
+            : chain().focus().wrapIn(this.name).run(),
 
-          return chain().wrapIn(this.name).run();
-        },
+      unwrapDiv:
+        () =>
+        ({ chain }) =>
+          chain()
+            .focus()
+            .command(({ tr, dispatch, commands }) => {
+              const { $from } = tr.selection;
+
+              // Div自体が選択されている場合は、NodeSelectionの範囲をコンテンツで置き換える
+              const selectedNode = tr.selection instanceof NodeSelection ? tr.selection.node : null;
+
+              if (selectedNode?.type.name === this.name) {
+                tr.replaceWith($from.pos, $from.pos + selectedNode.nodeSize, selectedNode.content);
+                commands.setTextSelection($from.pos + 1);
+                dispatch?.(tr);
+                return true;
+              }
+
+              // カーソルを含む親Divを探し、Divの外側からコンテンツを戻す
+              for (let depth = $from.depth; depth > 0; depth -= 1) {
+                if ($from.node(depth).type.name !== this.name) continue;
+
+                const position = $from.pos;
+                tr.replaceWith($from.before(depth), $from.after(depth), $from.node(depth).content);
+                // ノード置換による位置ずれをトランザクションのマッピングで補正する
+                commands.setTextSelection(tr.mapping.map(position, -1));
+                dispatch?.(tr);
+                return true;
+              }
+
+              return false;
+            })
+            .run(),
 
       wrapDiv:
         () =>
         ({ chain }) => {
-          return chain().wrapIn(this.name).run();
+          return chain().focus().wrapIn(this.name).run();
         },
     };
   },
