@@ -16,6 +16,7 @@
     "@vitejs/plugin-vue": "catalog:",
     "extension-anchor-link": "workspace:^",
     "extension-classname": "workspace:^",
+    "extension-div": "workspace:^",
     "extension-ui-node-tag": "workspace:^",
     "tailwindcss": "catalog:",
     "vue": "catalog:"
