@@ -1,4 +1,5 @@
 import { Extension } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 
 export interface ClassNameOptions {
   types: string[];
@@ -57,6 +58,11 @@ export const ClassName = Extension.create<ClassNameOptions>({
           // 対象の判別
           // Nodeタイプ
           let node_type = type;
+          let prev_class = "";
+          if (!node_type && tr.selection instanceof NodeSelection) {
+            node_type = tr.selection.node.type.name;
+            prev_class = tr.selection.node.attrs.className ?? "";
+          }
           if (!node_type) {
             // 選択中のNodeを対象に
             node_type = tr.selection.$from.node().type.name;
@@ -68,7 +74,9 @@ export const ClassName = Extension.create<ClassNameOptions>({
           // classの付与
 
           // 既存のclassNameを確認 スペース区切りの文字列
-          const prev_class: string = tr.selection.$from.node().attrs.className ?? "";
+          if (!(tr.selection instanceof NodeSelection && !type)) {
+            prev_class = tr.selection.$from.node().attrs.className ?? "";
+          }
 
           // 新しいクラス 追加するクラスを初期値に
           let newClassName = name;
