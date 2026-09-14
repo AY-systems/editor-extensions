@@ -110,6 +110,9 @@ catalogs:
     '@tailwindcss/vite':
       specifier: ^4.3.3
       version: 4.3.3
+    '@tiptap/core':
+      specifier: ^3.31.0
+      version: 3.31.3
     '@tiptap/pm':
       specifier: ^3.31.0
       version: 3.31.3
@@ -145,6 +148,9 @@ importers:
 
   .:
     devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@0.2.9
         version: '@voidzero-dev/vite-plus-core@0.2.9(jiti@2.7.0)(typescript@6.0.3)'
@@ -169,6 +175,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 6.0.8(@voidzero-dev/vite-plus-core@0.2.9(jiti@2.7.0)(typescript@6.0.3))(vue@3.5.42(typescript@6.0.3))
+      extension-ui-node-tag:
+        specifier: workspace:^
+        version: link:../../packages/extension-ui-node-tag
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
@@ -188,6 +197,18 @@ importers:
       vue-tsc:
         specifier: 'catalog:'
         version: 3.3.11(typescript@6.0.3)
+
+  packages/extension-ui-node-tag:
+    devDependencies:
+      '@tiptap/core':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: 'catalog:'
+        version: 3.31.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@voidzero-dev/vite-plus-core@0.2.9(jiti@2.7.0)(typescript@6.0.3))(jiti@2.7.0)(typescript@6.0.3)
 
 packages:
 
