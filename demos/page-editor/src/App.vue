@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/vue-3";
-import NodeTag from "extension-ui-node-tag";
-import { watch } from "vue";
 
-const modelValue = defineModel<string>();
+import { ref, watch } from "vue";
+import { advancedExtensions, requiredExtensions } from "./extensions";
+
+const modelValue = ref<string>(``);
 
 const editor = useEditor({
   content: modelValue.value,
-  extensions: [StarterKit, NodeTag.configure({ wrapperPadding: 16 })],
+  extensions: [...requiredExtensions, ...advancedExtensions],
   onUpdate: (e) => {
     modelValue.value = e.editor.getHTML();
   },
