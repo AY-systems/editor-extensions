@@ -53,7 +53,7 @@ export const ClassName = Extension.create<ClassNameOptions>({
       // クラスの付け外し
       toggleClassName:
         (name: string, type?: string) =>
-        ({ editor, chain, tr }) => {
+        ({ chain, tr }) => {
           // 対象の判別
           // Nodeタイプ
           let node_type = type;
@@ -68,7 +68,7 @@ export const ClassName = Extension.create<ClassNameOptions>({
           // classの付与
 
           // 既存のclassNameを確認 スペース区切りの文字列
-          const prev_class: string = editor.getAttributes(node_type).className ?? "";
+          const prev_class: string = tr.selection.$from.node().attrs.className ?? "";
 
           // 新しいクラス 追加するクラスを初期値に
           let newClassName = name;
