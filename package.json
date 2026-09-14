@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:demo": "vp run --filter ./demos/page-editor dev",
+    "build:demo": "vp run --filter ./demos/page-editor build",
     "build": "vp run --filter ./packages/* build",
     "ready": "vp check"
   },
