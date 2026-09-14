@@ -37,7 +37,7 @@ const ANCHOR_LINK_STYLES = `
 function getActiveNodeType(editor: Editor, types: string[]) {
   let node_type = "";
   types.some((type) => {
-    if (editor.isActive(type)) {
+    if (editor.isActive(type) && editor.getAttributes(type).anchorLink) {
       node_type = type;
       return true;
     }
