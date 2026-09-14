@@ -175,6 +175,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 6.0.8(@voidzero-dev/vite-plus-core@0.2.9(jiti@2.7.0)(typescript@6.0.3))(vue@3.5.42(typescript@6.0.3))
+      extension-anchor-link:
+        specifier: workspace:^
+        version: link:../../packages/extension-anchor-link
       extension-classname:
         specifier: workspace:^
         version: link:../../packages/extension-classname
@@ -200,6 +203,18 @@ importers:
       vue-tsc:
         specifier: 'catalog:'
         version: 3.3.11(typescript@6.0.3)
+
+  packages/extension-anchor-link:
+    devDependencies:
+      '@tiptap/core':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: 'catalog:'
+        version: 3.31.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@voidzero-dev/vite-plus-core@0.2.9(jiti@2.7.0)(typescript@6.0.3))(jiti@2.7.0)(typescript@6.0.3)
 
   packages/extension-classname:
     devDependencies:
