@@ -14,6 +14,7 @@ catalog:
   typescript: 6.0.3
   vite: npm:@voidzero-dev/vite-plus-core@0.2.9
   vite-plus: 0.2.9
+  vue-tsc: ^3.0.8
 
   #demo's dependencies
   "@tailwindcss/vite": "^4.3.3"
