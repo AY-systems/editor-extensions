@@ -117,6 +117,7 @@ class NodeTagView {
   destroy() {
     this.resizeObserver.disconnect();
     this.container.remove();
+    this.editorView.dom.removeAttribute("data-ui-node-tag-editor");
     if (this.originalPosition !== undefined && this.parent.style.position === "relative") {
       this.parent.style.position = this.originalPosition;
     }
