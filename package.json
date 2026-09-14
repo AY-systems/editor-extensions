@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:demo": "vp run --filter ./demos/page-editor dev",
+    "build": "vp run --filter ./packages/* build",
     "ready": "vp check"
   },
   "devDependencies": {
