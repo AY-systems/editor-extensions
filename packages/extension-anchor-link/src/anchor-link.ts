@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import { Extension } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 
 export interface AnchorLinkOptions {
   types: string[];
@@ -45,6 +46,25 @@ function getActiveNodeType(editor: Editor, types: string[]) {
   });
 
   return node_type;
+}
+
+function hasDuplicateAnchor(editor: Editor, type: string, name: string) {
+  if (!name) return false;
+
+  const activeNode =
+    editor.state.selection instanceof NodeSelection
+      ? editor.state.selection.node
+      : editor.state.selection.$from.parent;
+  let duplicate = false;
+  editor.state.doc.descendants((node) => {
+    if (node !== activeNode && node.type.name === type && node.attrs.anchorLink === name) {
+      duplicate = true;
+      return false;
+    }
+    return true;
+  });
+
+  return duplicate;
 }
 
 export const AnchorLink = Extension.create<AnchorLinkOptions>({
@@ -103,6 +123,7 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
 
           // 有効なnodeがない場合何もしない
           if (!node_type) return false;
+          if (hasDuplicateAnchor(editor, node_type, name)) return false;
 
           return chain()
             .focus()
