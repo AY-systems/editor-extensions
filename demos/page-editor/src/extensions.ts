@@ -2,7 +2,7 @@ import NodeTag from "extension-ui-node-tag";
 import StarterKit from "@tiptap/starter-kit";
 import ClassName from "extension-classname";
 import AnchorLink from "extension-anchor-link";
-import Div from "extension-div";
+import { Div, Grid } from "extension-div";
 
 export const requiredExtensions = [StarterKit];
 
@@ -11,4 +11,5 @@ export const advancedExtensions = [
   ClassName,
   AnchorLink,
   Div,
+  Grid,
 ];
