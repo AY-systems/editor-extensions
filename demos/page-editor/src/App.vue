@@ -28,7 +28,13 @@ watch(
 );
 </script>
 <template>
-  <div class="m-4 rounded border">
-    <EditorContent :editor />
+  <div>
+    <div>
+      <button>test</button>
+    </div>
+    <div class="m-4 rounded border">
+      <EditorContent :editor />
+    </div>
+    {{ modelValue }}
   </div>
 </template>
