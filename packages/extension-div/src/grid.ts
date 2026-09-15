@@ -1,20 +1,10 @@
 import { mergeAttributes } from "@tiptap/core";
 import { Div } from "./div";
+import { getStyle, renderStyleAttribute } from "./utils";
 
 type GridOptions = {
   HTMLAttributes: Record<string, any>;
   style: Record<string, any>;
-};
-
-const getStyle = (element: HTMLElement, property: string, attribute: string) =>
-  element.style.getPropertyValue(property) || element.getAttribute(attribute) || "";
-
-const renderStyleAttribute = (property: string, value: string) => {
-  if (!value) return;
-
-  return {
-    style: `${property}: ${value}`,
-  };
 };
 
 declare module "@tiptap/core" {
