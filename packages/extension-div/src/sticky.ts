@@ -46,11 +46,18 @@ export const Sticky = Div.extend<StickyOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
+    const style = Object.entries(this.options.style)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("; ");
+
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, this.options.style, HTMLAttributes, {
-        "data-type": this.name,
-      }),
+      mergeAttributes(
+        this.options.HTMLAttributes,
+        HTMLAttributes,
+        style ? { style } : {},
+        { "data-type": this.name },
+      ),
       0,
     ];
   },
