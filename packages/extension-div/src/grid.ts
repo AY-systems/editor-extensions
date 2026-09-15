@@ -90,11 +90,12 @@ export const Grid = Div.extend<GridOptions>({
       updateGrid:
         (cols?: number, gap?: string, isResponsive?: boolean) =>
         ({ commands }) => {
-          const param = {
-            isResponsive,
-            gridCols: cols ?? 2,
-            gap: gap ?? "",
-          };
+          const param: Record<string, unknown> = {};
+
+          if (cols !== undefined) param.gridCols = cols;
+          if (gap !== undefined) param.gap = gap;
+          if (isResponsive !== undefined) param.isResponsive = isResponsive;
+
           return commands.updateAttributes(this.name, param);
         },
     };
