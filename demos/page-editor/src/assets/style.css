@@ -9,7 +9,7 @@
 
   > *:not(:last-child),
   li:not(:last-child),
-  div:not([data-type="containerSplit"]) > *:not(:last-child) {
+  div:not([data-type="grid"]) > *:not(:last-child) {
     margin-bottom: 1rem;
   }
 }
