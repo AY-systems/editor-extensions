@@ -1,4 +1,4 @@
-import NodeTag from "extension-ui-node-tag";
+import NodeTag from "extension-node-tag";
 import StarterKit from "@tiptap/starter-kit";
 import { ClassName, TextDecoration } from "extension-classname";
 import AnchorLink from "extension-anchor-link";
@@ -11,7 +11,7 @@ export const requiredExtensions = [StarterKit];
 
 export const advancedExtensions = [
   EmbedMedia,
-  NodeTag.configure({ wrapperPadding: 16 }),
+  NodeTag,
   ClassName,
   TextDecoration,
   AnchorLink,
