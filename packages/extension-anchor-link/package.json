@@ -17,7 +17,6 @@
     }
   },
   "scripts": {
-    "dev": "vp pack --watch",
     "build": "vp pack",
     "prepare": "vp pack"
   },
