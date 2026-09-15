@@ -78,25 +78,25 @@ export const Grid = Div.extend<GridOptions>({
     return {
       createGrid:
         (cols?: number, gap?: string, isResponsive?: boolean) =>
-        ({ commands }) => {
+        ({ chain }) => {
           const param = {
             display: "grid",
             gridCols: cols ?? 2,
             gap: gap ?? "",
             isResponsive,
           };
-          return commands.wrapIn(this.name, param);
+          return chain().wrapIn(this.name, param).run();
         },
       updateGrid:
         (cols?: number, gap?: string, isResponsive?: boolean) =>
-        ({ commands }) => {
+        ({ chain }) => {
           const param: Record<string, unknown> = {};
 
           if (cols !== undefined) param.gridCols = cols;
           if (gap !== undefined) param.gap = gap;
           if (isResponsive !== undefined) param.isResponsive = isResponsive;
 
-          return commands.updateAttributes(this.name, param);
+          return chain().updateAttributes(this.name, param).run();
         },
     };
   },
