@@ -35,7 +35,7 @@ export const Grid = Div.extend<GridOptions>({
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+      mergeAttributes(this.options.HTMLAttributes, this.options.style, HTMLAttributes, {
         "data-type": this.name,
       }),
       0,
