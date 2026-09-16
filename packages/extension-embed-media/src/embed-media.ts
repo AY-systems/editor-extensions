@@ -5,10 +5,15 @@ const safeIframeSrc = (value: unknown): string | null => {
 
   const src = value.trim();
   if (!src) return "";
-  if (/^[a-z][a-z\d+.-]*:/i.test(src)) {
-    return /^(?:https?:|about:blank)$/i.test(src) ? src : null;
+  if (/[\u0000-\u001f\u007f]/.test(src)) return null;
+  if (src === "about:blank") return src;
+
+  try {
+    const url = new URL(src);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : null;
+  } catch {
+    return null;
   }
-  return src;
 };
 
 // iframeの設定パラメータの型

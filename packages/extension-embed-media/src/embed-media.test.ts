@@ -137,4 +137,23 @@ describe("EmbedMedia", () => {
 
     destroyEditor(editor);
   });
+
+  it.each(["java\nscript:alert(1)", "https:\n//example.com", "https://example.com\u0000"]) (
+    "制御文字を含むiframeのURLを拒否する: %s",
+    (src) => {
+      const { editor } = createEditor([EmbedMedia], "<p>text</p>");
+
+      expect(
+        editor.commands.insertIFrame({
+          src,
+          width: "640",
+          height: "360",
+          aspectRatio: "16 / 9",
+          maxWidth: "100%",
+        }),
+      ).toBe(false);
+
+      destroyEditor(editor);
+    },
+  );
 });
