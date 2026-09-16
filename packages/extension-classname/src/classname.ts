@@ -5,6 +5,12 @@ export interface ClassNameOptions {
   types: string[];
 }
 
+const registeredClassNameTypes = new Set<string>();
+
+export function registerClassNameType(type: string) {
+  registeredClassNameTypes.add(type);
+}
+
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     className: {
@@ -31,7 +37,7 @@ export const ClassName = Extension.create<ClassNameOptions>({
     return [
       {
         // 適応するNode & MarkのType
-        types: this.options.types,
+        types: [...this.options.types, ...registeredClassNameTypes],
         // 適応する属性
         attributes: {
           className: {
@@ -69,13 +75,29 @@ export const ClassName = Extension.create<ClassNameOptions>({
           }
 
           // Nodeタイプが付与対象でなければ何もしない
-          if (!this.options.types.includes(node_type)) return false;
+          if (
+            !this.options.types.includes(node_type) &&
+            !registeredClassNameTypes.has(node_type)
+          ) {
+            return false;
+          }
 
           // classの付与
 
           // 既存のclassNameを確認 スペース区切りの文字列
           if (!(tr.selection instanceof NodeSelection && !type)) {
-            prev_class = tr.selection.$from.node().attrs.className ?? "";
+            if (type && registeredClassNameTypes.has(node_type)) {
+              const mark =
+                tr.selection.$from.nodeAfter?.marks.find(
+                  (mark) => mark.type.name === node_type,
+                ) ??
+                tr.selection.$from.nodeBefore?.marks.find(
+                  (mark) => mark.type.name === node_type,
+                );
+              prev_class = mark?.attrs.className ?? "";
+            } else {
+              prev_class = tr.selection.$from.node().attrs.className ?? "";
+            }
           }
 
           // 新しいクラス 追加するクラスを初期値に
