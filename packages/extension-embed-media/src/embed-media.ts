@@ -136,8 +136,6 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
 
           return (
             chain()
-              // 目印にクラスをつける
-              .updateAttributes("paragraph", { class: "iframe_wrapper" })
               // iframeを挿入
               .command(({ tr, dispatch, chain }) => {
                 if (dispatch) {
