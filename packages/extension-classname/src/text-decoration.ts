@@ -79,8 +79,24 @@ export const TextDecoration = Mark.create<TextDecorationOptions>({
 
       setTextDecoration:
         (classname) =>
-        ({ chain }) => {
-          return chain().focus().setMark(this.name, { className: classname }).run();
+        ({ chain, commands, state }) => {
+          const { from, to, empty } = state.selection;
+          const hasTextDecoration = (marks: readonly { type: { name: string } }[]) =>
+            marks.some((mark) => mark.type.name === this.name);
+          let hasExistingMark = empty
+            ? hasTextDecoration(state.storedMarks ?? state.selection.$from.marks())
+            : false;
+
+          if (!empty) {
+            state.doc.nodesBetween(from, to, (node) => {
+              if (hasTextDecoration(node.marks)) hasExistingMark = true;
+              return !hasExistingMark;
+            });
+          }
+
+          return hasExistingMark
+            ? commands.setClassName(classname, this.name)
+            : chain().focus().setMark(this.name, { className: classname }).run();
         },
 
       unsetTextDecoration:

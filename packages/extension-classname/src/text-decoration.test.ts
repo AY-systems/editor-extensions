@@ -26,6 +26,18 @@ describe("TextDecoration", () => {
     destroyEditor(editor);
   });
 
+  it("既存のクラスを保持して別のクラスを追加できる", () => {
+    const { editor } = createEditor(
+      [ClassName, TextDecoration],
+      '<p><span data-type="textDecoration" class="underline">テスト</span></p>',
+    );
+    editor.commands.setTextSelection({ from: 1, to: 4 });
+
+    expect(editor.commands.setTextDecoration("bold")).toBe(true);
+    expect(editor.getHTML()).toContain('class="bold underline"');
+    destroyEditor(editor);
+  });
+
   it("unset でクラスを解除できる", () => {
     const { editor } = createEditor(
       [ClassName, TextDecoration],
