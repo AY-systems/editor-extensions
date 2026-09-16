@@ -35,10 +35,10 @@ const ANCHOR_LINK_STYLES = `
 `;
 
 // 有効な対象のノード名を取得
-function getActiveNodeType(editor: Editor, types: string[]) {
+function getActiveNodeType(editor: Editor, types: string[], requireAnchor = true) {
   let node_type = "";
   types.some((type) => {
-    if (editor.isActive(type) && editor.getAttributes(type).anchorLink) {
+    if (editor.isActive(type) && (!requireAnchor || editor.getAttributes(type).anchorLink)) {
       node_type = type;
       return true;
     }
@@ -119,7 +119,7 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
       setAnchorLink:
         (name: string) =>
         ({ editor, chain }) => {
-          const node_type = getActiveNodeType(editor, this.options.types);
+          const node_type = getActiveNodeType(editor, this.options.types, false);
 
           // 有効なnodeがない場合何もしない
           if (!node_type) return false;
