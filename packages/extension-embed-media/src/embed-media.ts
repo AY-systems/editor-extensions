@@ -1,5 +1,16 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 
+const safeIframeSrc = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+
+  const src = value.trim();
+  if (!src) return "";
+  if (/^[a-z][a-z\d+.-]*:/i.test(src)) {
+    return /^(?:https?:|about:blank$)/i.test(src) ? src : null;
+  }
+  return src;
+};
+
 // iframeの設定パラメータの型
 export type EmbedMediaProps = {
   src: string;
@@ -52,11 +63,12 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
     return {
       src: {
         default: "",
-        parseHTML: (element) => element.getAttribute("src"),
+        parseHTML: (element) => safeIframeSrc(element.getAttribute("src")),
         renderHTML: (attributes) => {
-          if (!attributes.src) return;
+          const src = safeIframeSrc(attributes.src);
+          if (!src) return;
           return {
-            src: attributes.src,
+            src,
           };
         },
       },
@@ -119,6 +131,9 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
       insertIFrame:
         (attrs: EmbedMediaProps) =>
         ({ chain }) => {
+          const src = safeIframeSrc(attrs.src);
+          if (src === null) return false;
+
           return (
             chain()
               // 目印にクラスをつける
@@ -129,7 +144,7 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
                   const { $from } = tr.selection;
                   chain().insertContentAt($from.pos, {
                     type: "iframe-wrapper",
-                    content: [{ type: this.name, attrs }],
+                    content: [{ type: this.name, attrs: { ...attrs, src } }],
                   });
                 }
                 return true;
