@@ -1,10 +1,5 @@
 import { Extension } from "@tiptap/core";
-import {
-  getClassNameContext,
-  isSupportedClassNameType,
-  registeredClassNameTypes,
-  registerClassNameType,
-} from "./utils";
+import { getClassNameContext, isSupportedClassNameType, registeredClassNameTypes } from "./utils";
 
 export interface ClassNameOptions {
   types: string[];
