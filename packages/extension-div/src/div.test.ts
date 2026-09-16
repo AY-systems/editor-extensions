@@ -9,12 +9,21 @@ describe("Div", () => {
     expect(editor.getJSON().content?.[0].type).toBe("div");
     destroyEditor(editor);
   });
+
   it("Divをunwrapできる", () => {
     const { editor } = createEditor([Div], "<div><p>テスト</p></div>");
     expect(editor.commands.unwrapDiv()).toBe(true);
     expect(editor.getJSON().content?.[0].type).toBe("paragraph");
     destroyEditor(editor);
   });
+
+  it("toggleDivでDivへwrapできる", () => {
+    const { editor } = createEditor([Div]);
+    expect(editor.commands.toggleDiv()).toBe(true);
+    expect(editor.getJSON().content?.[0].type).toBe("div");
+    destroyEditor(editor);
+  });
+
   it("Divをtoggleで解除できる", () => {
     const { editor } = createEditor([Div], "<div><p>テスト</p></div>");
     expect(editor.commands.toggleDiv()).toBe(true);
