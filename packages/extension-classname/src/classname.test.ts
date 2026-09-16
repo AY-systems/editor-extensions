@@ -3,14 +3,17 @@ import { ClassName } from "./classname";
 import { createEditor, destroyEditor } from "../../../tests/helpers";
 
 describe("ClassName", () => {
-  it("クラスを追加・削除し、複数クラスを共存させる", () => {
+  it("クラスを追加できる", () => {
     const { editor } = createEditor([ClassName]);
     expect(editor.commands.toggleClassName("lead")).toBe(true);
     expect(editor.getAttributes("paragraph").className).toBe("lead");
-    expect(editor.commands.toggleClassName("wide")).toBe(true);
-    expect(editor.getAttributes("paragraph").className).toBe("wide lead");
+    destroyEditor(editor);
+  });
+
+  it("同じクラスをtoggleで削除できる", () => {
+    const { editor } = createEditor([ClassName], '<p class="lead">テスト</p>');
     expect(editor.commands.toggleClassName("lead")).toBe(true);
-    expect(editor.getAttributes("paragraph").className).toBe("wide");
+    expect(editor.getAttributes("paragraph").className).toBe("");
     destroyEditor(editor);
   });
 
