@@ -20,7 +20,9 @@ describe("ClassName", () => {
   });
 
   it("toggleClassNameで既存のクラスを削除できる", () => {
-    const { editor } = createEditor([ClassName], '<p class="lead">test</p>');
+    const { editor } = createEditor([ClassName]);
+    expect(editor.commands.toggleClassName("lead")).toBe(true);
+    expect(editor.getAttributes("paragraph").className).toBe("lead");
     expect(editor.commands.toggleClassName("lead")).toBe(true);
     expect(editor.getAttributes("paragraph").className).toBe("");
     destroyEditor(editor);
