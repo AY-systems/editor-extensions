@@ -7,9 +7,14 @@
     "dev:demo": "vp run --filter ./demos/page-editor dev",
     "build:demo": "vp run --filter ./demos/page-editor build",
     "build": "vp run --filter ./packages/* build",
+    "test": "vp test --dom",
     "ready": "vp check"
   },
   "devDependencies": {
+    "@tiptap/core": "catalog:",
+    "@tiptap/pm": "catalog:",
+    "@tiptap/starter-kit": "catalog:",
+    "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
