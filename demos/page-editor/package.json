@@ -17,6 +17,7 @@
     "extension-anchor-link": "workspace:^",
     "extension-classname": "workspace:^",
     "extension-div": "workspace:^",
+    "extension-embed-media": "workspace:^",
     "extension-ui-node-tag": "workspace:^",
     "tailwindcss": "catalog:",
     "vue": "catalog:"
