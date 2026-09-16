@@ -87,7 +87,7 @@ export const TextDecoration = Mark.create<TextDecorationOptions>({
         (classname) =>
         ({ chain }) => {
           return chain()
-            .toggleClassName(classname, this.name)
+            .unsetClassName(classname, this.name)
             .command(({ tr }) => {
               const className =
                 tr.selection.$from.nodeAfter?.marks.find((mark) => mark.type === this.type)?.attrs
