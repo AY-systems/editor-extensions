@@ -17,7 +17,7 @@ describe("EmbedMedia", () => {
     ).toBe(true);
 
     const paragraph = editor.getJSON().content?.[0];
-    expect(paragraph?.type).toBe("paragraph");
+    expect(paragraph?.type).toBe("iframe-wrapper");
     expect(paragraph?.content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: {
@@ -53,11 +53,13 @@ describe("EmbedMedia", () => {
       }),
     ).toBe(true);
 
-    expect(editor.getJSON().content?.[0].content?.[0].attrs).toMatchObject({
-      src: "about:srcdoc",
-      width: "800",
-      height: "450",
-      maxWidth: "80%",
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      attrs: {
+        src: "about:srcdoc",
+        width: "800",
+        height: "450",
+        maxWidth: "80%",
+      },
     });
 
     destroyEditor(editor);
@@ -69,6 +71,7 @@ describe("EmbedMedia", () => {
       '<p><iframe src="about:blank" width="640" height="360" style="aspect-ratio: 16 / 9; max-width: 100%;"></iframe></p>',
     );
 
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: {
@@ -94,6 +97,7 @@ describe("EmbedMedia", () => {
     });
 
     const iframe = element.querySelector("iframe");
+    expect(element.querySelector("p")?.getAttribute("data-type")).toBe("iframe-wrapper");
     expect(iframe?.getAttribute("src")).toBe("about:blank");
     expect(iframe?.getAttribute("width")).toBe("640");
     expect(iframe?.getAttribute("height")).toBe("360");

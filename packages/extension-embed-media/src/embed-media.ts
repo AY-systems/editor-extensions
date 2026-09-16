@@ -27,6 +27,10 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
   group: "inline",
   inline: true,
 
+  addExtensions() {
+    return [IframeWrapper];
+  },
+
   parseHTML() {
     return [
       {
@@ -124,8 +128,8 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
                 if (dispatch) {
                   const { $from } = tr.selection;
                   chain().insertContentAt($from.pos, {
-                    type: this.name,
-                    attrs: { "data-type": this.name, ...attrs },
+                    type: "iframe-wrapper",
+                    content: [{ type: this.name, attrs }],
                   });
                 }
                 return true;
@@ -142,5 +146,24 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
             .run();
         },
     };
+  },
+});
+
+const IframeWrapper = Node.create({
+  name: "iframe-wrapper",
+  group: "block",
+  content: "embedMedia",
+
+  parseHTML() {
+    return [
+      {
+        tag: `[data-type="iframe-wrapper"]`,
+        priority: 100,
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["p", mergeAttributes(HTMLAttributes, { "data-type": "iframe-wrapper" }), 0];
   },
 });
