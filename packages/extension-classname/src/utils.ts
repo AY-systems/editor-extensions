@@ -2,10 +2,12 @@ import { NodeSelection } from "@tiptap/pm/state";
 
 export const registeredClassNameTypes = new Set<string>();
 
+/** className属性を扱うMarkの種類を登録する。 */
 export function registerClassNameType(type: string) {
   registeredClassNameTypes.add(type);
 }
 
+/** 現在の選択範囲から対象ノードの種類とclassNameを取得する。 */
 export function getClassNameContext(type: string | undefined, tr: any) {
   let nodeType = type;
   let className = "";
@@ -25,6 +27,7 @@ export function getClassNameContext(type: string | undefined, tr: any) {
   return { nodeType, className };
 }
 
+/** 指定されたノードの種類がclassName属性の対象か判定する。 */
 export function isSupportedClassNameType(nodeType: string | undefined, types: string[]) {
   return !!nodeType && (types.includes(nodeType) || registeredClassNameTypes.has(nodeType));
 }
