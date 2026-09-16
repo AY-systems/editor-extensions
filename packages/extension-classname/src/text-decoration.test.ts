@@ -38,6 +38,19 @@ describe("TextDecoration", () => {
     destroyEditor(editor);
   });
 
+  it("混在した選択範囲の既存・未設定部分にクラスを追加できる", () => {
+    const { editor } = createEditor(
+      [ClassName, TextDecoration],
+      '<p><span data-type="textDecoration" class="underline">装飾済み</span>未装飾</p>',
+    );
+    editor.commands.setTextSelection({ from: 1, to: 8 });
+
+    expect(editor.commands.setTextDecoration("bold")).toBe(true);
+    expect(editor.getHTML()).toContain('class="bold underline"');
+    expect(editor.getHTML()).toContain('<span class="bold" data-type="textDecoration">未装飾</span>');
+    destroyEditor(editor);
+  });
+
   it("unset でクラスを解除できる", () => {
     const { editor } = createEditor(
       [ClassName, TextDecoration],
@@ -60,6 +73,20 @@ describe("TextDecoration", () => {
     expect(editor.commands.unsetTextDecoration("underline")).toBe(true);
     expect(editor.getHTML()).toContain('class="bold"');
     expect(editor.getHTML()).not.toContain("underline");
+    destroyEditor(editor);
+  });
+
+  it("異なるクラス構成の選択範囲を個別に解除できる", () => {
+    const { editor } = createEditor(
+      [ClassName, TextDecoration],
+      '<p><span data-type="textDecoration" class="bold underline">装飾済み</span><span data-type="textDecoration" class="bold">未装飾</span></p>',
+    );
+    editor.commands.setTextSelection({ from: 1, to: 8 });
+
+    expect(editor.commands.unsetTextDecoration("bold")).toBe(true);
+    expect(editor.getHTML()).toContain('class="underline"');
+    expect(editor.getHTML()).not.toContain('class="bold"');
+    expect(editor.getHTML()).toContain("未装飾");
     destroyEditor(editor);
   });
 

@@ -79,47 +79,67 @@ export const TextDecoration = Mark.create<TextDecorationOptions>({
 
       setTextDecoration:
         (classname) =>
-        ({ chain, commands, state }) => {
+        ({ chain, state }) => {
           const { from, to, empty } = state.selection;
-          const hasTextDecoration = (marks: readonly { type: { name: string } }[]) =>
-            marks.some((mark) => mark.type.name === this.name);
-          let hasExistingMark = empty
-            ? hasTextDecoration(state.storedMarks ?? state.selection.$from.marks())
-            : false;
+          if (empty) return chain().focus().setMark(this.name, { className: classname }).run();
 
-          if (!empty) {
-            state.doc.nodesBetween(from, to, (node) => {
-              if (hasTextDecoration(node.marks)) hasExistingMark = true;
-              return !hasExistingMark;
-            });
-          }
+          return chain()
+            .focus()
+            .command(({ tr }) => {
+              state.doc.nodesBetween(from, to, (node, pos) => {
+                if (!node.isText) return;
+                const start = Math.max(from, pos);
+                const end = Math.min(to, pos + node.nodeSize);
+                if (start >= end) return;
 
-          return hasExistingMark
-            ? commands.setClassName(classname, this.name)
-            : chain().focus().setMark(this.name, { className: classname }).run();
+                const mark = node.marks.find((item) => item.type === this.type);
+                const classNames = (mark?.attrs.className ?? "").split(" ").filter(Boolean);
+                if (!classNames.includes(classname)) classNames.unshift(classname);
+                tr.addMark(
+                  start,
+                  end,
+                  this.type.create({ ...(mark?.attrs ?? {}), className: classNames.join(" ") }),
+                );
+              });
+              return true;
+            })
+            .run();
         },
 
       unsetTextDecoration:
         (classname) =>
-        ({ chain }) => {
-          return chain()
-            .unsetClassName(classname, this.name)
-            .command(({ tr }) => {
-              const className =
-                tr.selection.$from.nodeAfter?.marks.find((mark) => mark.type === this.type)?.attrs
-                  .className ??
-                tr.selection.$from.nodeBefore?.marks.find((mark) => mark.type === this.type)?.attrs
-                  .className ??
-                "";
+        ({ chain, state }) => {
+          const { from, to, empty } = state.selection;
+          if (empty) {
+            return chain().focus().command(({ tr }) => {
+              tr.removeStoredMark(this.type);
+              return true;
+            }).run();
+          }
 
-              // 対象のクラス削除後にクラスが空の場合マークを削除
-              if (className === "") {
-                if (tr.selection.empty) {
-                  tr.removeStoredMark(this.type);
+          return chain()
+            .focus()
+            .command(({ tr }) => {
+              state.doc.nodesBetween(from, to, (node, pos) => {
+                if (!node.isText) return;
+                const start = Math.max(from, pos);
+                const end = Math.min(to, pos + node.nodeSize);
+                const mark = node.marks.find((item) => item.type === this.type);
+                if (!mark || start >= end) return;
+
+                const classNames = (mark.attrs.className ?? "")
+                  .split(" ")
+                  .filter((value: string) => value && value !== classname);
+                if (classNames.length === 0) {
+                  tr.removeMark(start, end, this.type);
                 } else {
-                  tr.removeMark(tr.selection.from, tr.selection.to, this.type);
+                  tr.addMark(
+                    start,
+                    end,
+                    this.type.create({ ...mark.attrs, className: classNames.join(" ") }),
+                  );
                 }
-              }
+              });
               return true;
             })
             .run();
