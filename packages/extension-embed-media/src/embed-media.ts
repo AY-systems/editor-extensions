@@ -157,6 +157,19 @@ const IframeWrapper = Node.create({
   parseHTML() {
     return [
       {
+        tag: "*",
+        priority: 100,
+        getAttrs: (element) => {
+          const firstChild = element.firstElementChild;
+          const isIframeWrapper =
+            element.children.length === 1 &&
+            firstChild?.tagName.toLowerCase() === "iframe" &&
+            element.textContent?.trim() === "";
+
+          return isIframeWrapper ? null : false;
+        },
+      },
+      {
         tag: `[data-type="iframe-wrapper"]`,
         priority: 100,
       },

@@ -86,6 +86,36 @@ describe("EmbedMedia", () => {
     destroyEditor(editor);
   });
 
+  it("data-typeがないp内のiframeを読み込める", () => {
+    const { editor } = createEditor(
+      [EmbedMedia],
+      '<p><iframe src="about:blank" width="640" height="360"></iframe></p>',
+    );
+
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "embedMedia",
+      attrs: { src: "about:blank", width: "640", height: "360" },
+    });
+
+    destroyEditor(editor);
+  });
+
+  it("data-typeがない任意の要素内のiframeを読み込める", () => {
+    const { editor } = createEditor(
+      [EmbedMedia],
+      '<div><iframe src="about:blank" width="640" height="360"></iframe></div>',
+    );
+
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "embedMedia",
+      attrs: { src: "about:blank", width: "640", height: "360" },
+    });
+
+    destroyEditor(editor);
+  });
+
   it("iframeの属性をHTMLへ出力できる", () => {
     const { editor, element } = createEditor([EmbedMedia], "<p>text</p>");
     editor.commands.insertIFrame({
