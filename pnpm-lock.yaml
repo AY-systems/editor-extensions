@@ -199,6 +199,9 @@ importers:
       extension-div:
         specifier: workspace:^
         version: link:../../packages/extension-div
+      extension-embed-media:
+        specifier: workspace:^
+        version: link:../../packages/extension-embed-media
       extension-ui-node-tag:
         specifier: workspace:^
         version: link:../../packages/extension-ui-node-tag
@@ -247,6 +250,18 @@ importers:
         version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.5)(jiti@2.7.0)(typescript@6.0.3)
 
   packages/extension-div:
+    devDependencies:
+      '@tiptap/core':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: 'catalog:'
+        version: 3.31.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.5)(jiti@2.7.0)(typescript@6.0.3)
+
+  packages/extension-embed-media:
     devDependencies:
       '@tiptap/core':
         specifier: 'catalog:'
