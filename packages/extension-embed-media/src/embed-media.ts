@@ -6,7 +6,7 @@ const safeIframeSrc = (value: unknown): string | null => {
   const src = value.trim();
   if (!src) return "";
   if (/^[a-z][a-z\d+.-]*:/i.test(src)) {
-    return /^(?:https?:|about:blank$)/i.test(src) ? src : null;
+    return /^(?:https?:|about:blank)$/i.test(src) ? src : null;
   }
   return src;
 };
@@ -154,8 +154,11 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
       updateIFrame:
         (attrs: EmbedMediaProps) =>
         ({ chain }) => {
+          const src = safeIframeSrc(attrs.src);
+          if (src === null) return false;
+
           return chain()
-            .updateAttributes("embedMedia", { ...attrs })
+            .updateAttributes("embedMedia", { ...attrs, src })
             .run();
         },
     };

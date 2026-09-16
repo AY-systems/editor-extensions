@@ -45,7 +45,7 @@ describe("EmbedMedia", () => {
     editor.commands.setNodeSelection(1);
     expect(
       editor.commands.updateIFrame({
-        src: "about:srcdoc",
+        src: "about:blank",
         width: "800",
         height: "450",
         aspectRatio: "16 / 9",
@@ -55,7 +55,7 @@ describe("EmbedMedia", () => {
 
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       attrs: {
-        src: "about:srcdoc",
+        src: "about:blank",
         width: "800",
         height: "450",
         maxWidth: "80%",
