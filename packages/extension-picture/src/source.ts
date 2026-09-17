@@ -12,7 +12,7 @@ declare module "@tiptap/core" {
        * レスポンシブサイズを更新する
        * @param attrs {media:string; srcset:string}
        */
-      updateSouce: (attrs: { media: string; srcset: string }) => ReturnType;
+      updateSource: (attrs: { media: string; srcset: string }) => ReturnType;
     };
   }
 }
@@ -72,7 +72,7 @@ export const Source = Node.create<SourceOptions>({
             })
             .run();
         },
-      updateSouce:
+      updateSource:
         (attrs) =>
         ({ chain }) => {
           // TODO:無駄な操作をなくす
