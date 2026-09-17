@@ -21,6 +21,30 @@ describe("Picture", () => {
     destroyEditor(editor);
   });
 
+  it("imageToPictureで現在のブロックをpictureに変換できる", () => {
+    const { editor } = createEditor([Picture], '<p><img src="image.webp" alt="sample"></p>');
+
+    expect(editor.commands.imageToPicture()).toBe(true);
+    expect(editor.getJSON().content?.[0]).toMatchObject({
+      type: "picture",
+      content: [{ type: "inline-image", attrs: { src: "image.webp", alt: "sample" } }],
+    });
+
+    destroyEditor(editor);
+  });
+
+  it("pictureToImageをpicture以外で実行してもドキュメントを変更しない", () => {
+    const { editor } = createEditor([Picture], "<p>text</p>");
+
+    expect(editor.commands.pictureToImage()).toBe(true);
+    expect(editor.getJSON().content?.[0]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "text" }],
+    });
+
+    destroyEditor(editor);
+  });
+
   it("有効なPictureをparagraphに戻せる", () => {
     const { editor } = createEditor(
       [Picture],
@@ -29,6 +53,11 @@ describe("Picture", () => {
 
     expect(editor.commands.pictureToImage()).toBe(true);
     expect(editor.getJSON().content?.[0].type).toBe("paragraph");
+    expect(editor.getJSON().content?.[0].content).toMatchObject([
+      { type: "inline-image", attrs: { src: "image.webp" } },
+    ]);
+    // picture専用のsourceノードは、imgへの解除時に消滅する
+    expect(editor.getHTML()).not.toContain("<source");
 
     destroyEditor(editor);
   });
