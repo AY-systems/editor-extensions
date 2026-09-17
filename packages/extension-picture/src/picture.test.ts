@@ -37,7 +37,7 @@ describe("Picture", () => {
   it("pictureToImageをpicture以外で実行してもドキュメントを変更しない", () => {
     const { editor } = createEditor([PictureKit], "<p>text</p>");
 
-    expect(editor.commands.pictureToImage()).toBe(true);
+    expect(editor.commands.pictureToImage()).toBe(false);
     expect(editor.getJSON().content?.[0]).toMatchObject({
       type: "paragraph",
       content: [{ type: "text", text: "text" }],

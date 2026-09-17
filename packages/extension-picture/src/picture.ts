@@ -67,11 +67,8 @@ export const Picture = Node.create<PictureOptions>({
       pictureToImage:
         () =>
         ({ editor, chain }) => {
-          if (editor.isActive("picture")) {
-            return chain().setNode("paragraph").run();
-          }
-
-          return true;
+          if (!editor.isActive("picture")) return false;
+          return chain().setNode("paragraph").run();
         },
     };
   },
