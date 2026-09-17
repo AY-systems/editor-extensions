@@ -2,6 +2,9 @@ packages:
   - packages/*
   - demos/*
 
+# クールダウンの設定(7日)
+minimumReleaseAge: 10080 # 7日（分単位）
+
 catalogMode: strict
 
 catalog:
