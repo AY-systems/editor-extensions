@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { Extension, mergeAttributes, Node } from "@tiptap/core";
 import { Fragment } from "@tiptap/pm/model";
 import { NodeSelection } from "@tiptap/pm/state";
 import { Source } from "./source";
@@ -28,10 +28,6 @@ export const Picture = Node.create<PictureOptions>({
   name: "picture",
   group: "block",
   content: "(inline|source)+",
-
-  addExtensions() {
-    return [InlineImage, Source];
-  },
 
   parseHTML() {
     return [{ tag: `picture` }];
@@ -78,5 +74,13 @@ export const Picture = Node.create<PictureOptions>({
           return true;
         },
     };
+  },
+});
+
+export const PictureKit = Extension.create({
+  name: "pictureKit",
+
+  addExtensions() {
+    return [Picture, InlineImage, Source];
   },
 });

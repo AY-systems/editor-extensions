@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Picture } from "./picture";
+import { PictureKit } from "./picture";
 import { createEditor, destroyEditor } from "../../../tests/helpers";
 
 describe("Picture", () => {
   it("sourceとインライン画像を持つPictureを解析・描画できる", () => {
     const { editor } = createEditor(
-      [Picture],
+      [PictureKit],
       '<picture><source srcset="large.webp" media="screen"><img src="image.webp" alt="sample"></picture>',
     );
 
@@ -22,7 +22,7 @@ describe("Picture", () => {
   });
 
   it("imageToPictureで現在のブロックをpictureに変換できる", () => {
-    const { editor } = createEditor([Picture], '<p><img src="image.webp" alt="sample"></p>');
+    const { editor } = createEditor([PictureKit], '<p><img src="image.webp" alt="sample"></p>');
 
     editor.commands.setNodeSelection(1);
     expect(editor.commands.imageToPicture()).toBe(true);
@@ -35,7 +35,7 @@ describe("Picture", () => {
   });
 
   it("pictureToImageをpicture以外で実行してもドキュメントを変更しない", () => {
-    const { editor } = createEditor([Picture], "<p>text</p>");
+    const { editor } = createEditor([PictureKit], "<p>text</p>");
 
     expect(editor.commands.pictureToImage()).toBe(true);
     expect(editor.getJSON().content?.[0]).toMatchObject({
@@ -47,7 +47,7 @@ describe("Picture", () => {
   });
 
   it("画像を含まない段落はPictureに変換しない", () => {
-    const { editor } = createEditor([Picture], "<p>text</p>");
+    const { editor } = createEditor([PictureKit], "<p>text</p>");
 
     expect(editor.commands.imageToPicture()).toBe(false);
     expect(editor.getJSON().content?.[0].type).toBe("paragraph");
@@ -56,7 +56,7 @@ describe("Picture", () => {
   });
 
   it("画像以外を含む段落でも選択画像だけをPictureに変換する", () => {
-    const { editor } = createEditor([Picture], '<p>text<img src="image.webp">after</p>');
+    const { editor } = createEditor([PictureKit], '<p>text<img src="image.webp">after</p>');
 
     editor.commands.setNodeSelection(5);
     expect(editor.commands.imageToPicture()).toBe(true);
@@ -71,7 +71,7 @@ describe("Picture", () => {
 
   it("有効なPictureをparagraphに戻せる", () => {
     const { editor } = createEditor(
-      [Picture],
+      [PictureKit],
       '<picture><source srcset="image.webp"><img src="image.webp"></picture>',
     );
 

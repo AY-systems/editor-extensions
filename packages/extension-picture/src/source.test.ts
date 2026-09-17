@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
-import { Picture } from "./picture";
+import { PictureKit } from "./picture";
 import { createEditor, destroyEditor } from "../../../tests/helpers";
 
 describe("Source", () => {
   it("source属性を解析・描画できる", () => {
     const { editor } = createEditor(
-      [Picture],
+      [PictureKit],
       '<picture><source srcset="small.webp 480w" media="(max-width: 600px)"><img src="image.webp"></picture>',
     );
 
@@ -25,7 +25,7 @@ describe("Source", () => {
 
   it("sourceノードを挿入・更新できる", () => {
     const { editor } = createEditor(
-      [Picture],
+      [PictureKit],
       '<picture><img src="image.webp"></picture>',
     );
 
@@ -39,7 +39,7 @@ describe("Source", () => {
   });
 
   it("Picture外ではsourceを挿入しない", () => {
-    const { editor } = createEditor([Picture], "<p>text</p>");
+    const { editor } = createEditor([PictureKit], "<p>text</p>");
 
     expect(editor.commands.setSource({ srcset: "image.webp", media: "screen" })).toBe(false);
     expect(editor.getJSON().content?.[0].type).toBe("paragraph");
