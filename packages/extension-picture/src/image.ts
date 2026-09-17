@@ -110,10 +110,6 @@ const BaseImage = Image.extend({
     };
   },
 
-  parseHTML() {
-    return [{ tag: "img" }];
-  },
-
   renderHTML({ HTMLAttributes }) {
     return ["img", mergeAttributes(HTMLAttributes, { "data-type": this.name })];
   },
@@ -123,6 +119,10 @@ export const BlockImage = BaseImage.extend({
   name: "block-image",
   inline: false,
   group: "block",
+
+  parseHTML() {
+    return [{ tag: 'img[data-type="block-image"]' }];
+  },
 
   addCommands() {
     return {
@@ -141,6 +141,13 @@ export const InlineImage = BaseImage.extend({
   name: "inline-image",
   inline: true,
   group: "inline",
+
+  parseHTML() {
+    return [
+      { tag: 'img[data-type="inline-image"]' },
+      { tag: "img:not([data-type])" },
+    ];
+  },
 
   addCommands() {
     return {

@@ -26,4 +26,18 @@ describe("Picture画像", () => {
 
     destroyEditor(editor);
   });
+
+  it("data-typeでブロック画像とインライン画像を解析し分ける", () => {
+    const { editor } = createEditor(
+      [BlockImage, InlineImage],
+      '<p><img data-type="inline-image" src="inline.webp"></p><img data-type="block-image" src="block.webp">',
+    );
+
+    expect(editor.getJSON().content).toMatchObject([
+      { type: "paragraph", content: [{ type: "inline-image" }] },
+      { type: "block-image", attrs: { src: "block.webp" } },
+    ]);
+
+    destroyEditor(editor);
+  });
 });
