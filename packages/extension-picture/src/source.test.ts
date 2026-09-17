@@ -1,0 +1,40 @@
+import { describe, expect, it } from "vite-plus/test";
+import { Picture } from "./picture";
+import { createEditor, destroyEditor } from "../../../tests/helpers";
+
+describe("Source", () => {
+  it("source属性を解析・描画できる", () => {
+    const { editor } = createEditor(
+      [Picture],
+      '<picture><source srcset="small.webp 480w" media="(max-width: 600px)"><img src="image.webp"></picture>',
+    );
+
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "source",
+      attrs: {
+        srcset: "small.webp 480w",
+        media: "(max-width: 600px)",
+      },
+    });
+    expect(editor.getHTML()).toContain(
+      '<source data-type="source" srcset="small.webp 480w" media="(max-width: 600px)">',
+    );
+
+    destroyEditor(editor);
+  });
+
+  it("sourceノードを挿入・更新できる", () => {
+    const { editor } = createEditor(
+      [Picture],
+      '<picture><img src="image.webp"></picture>',
+    );
+
+    expect(editor.commands.setSource({ srcset: "image.webp", media: "screen" })).toBe(true);
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "source",
+      attrs: { srcset: "image.webp", media: "screen" },
+    });
+
+    destroyEditor(editor);
+  });
+});
