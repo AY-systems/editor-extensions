@@ -6,7 +6,7 @@
   "scripts": {
     "dev:demo": "vp run --filter ./demos/page-editor dev",
     "build:demo": "vp run --filter ./demos/page-editor build",
-    "build": "vp run --filter ./packages/* build",
+    "build": "vp exec tsc --noEmit -p tsconfig.build.json && vp run --filter ./packages/* build",
     "test": "vp test --dom",
     "ready": "vp check"
   },
