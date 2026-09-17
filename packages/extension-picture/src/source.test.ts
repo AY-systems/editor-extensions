@@ -46,4 +46,22 @@ describe("Source", () => {
 
     destroyEditor(editor);
   });
+
+  it("選択中のPictureが持つsourceを更新できる", () => {
+    const { editor } = createEditor(
+      [PictureKit],
+      '<picture><source srcset="small.webp" media="screen"><img src="image.webp"></picture>',
+    );
+
+    editor.commands.setNodeSelection(0);
+    expect(editor.commands.updateSource({ srcset: "large.webp", media: "(min-width: 600px)" })).toBe(
+      true,
+    );
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "source",
+      attrs: { srcset: "large.webp", media: "(min-width: 600px)" },
+    });
+
+    destroyEditor(editor);
+  });
 });
