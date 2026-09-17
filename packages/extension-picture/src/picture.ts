@@ -1,4 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
+import { Fragment } from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
 import { Source } from "./source";
 import { InlineImage } from "./image";
 
@@ -6,11 +8,11 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     picture: {
       /**
-       * imgタグをレスポンシブ画像にする
+       * インライン画像をレスポンシブ画像にする
        */
       imageToPicture: () => ReturnType;
       /**
-       * レスポンシブ画像を破棄してimgタグに戻す
+       * レスポンシブ画像を破棄してインライン画像に戻す
        */
       pictureToImage: () => ReturnType;
     };
@@ -43,18 +45,33 @@ export const Picture = Node.create<PictureOptions>({
       imageToPicture:
         () =>
         ({ editor, chain }) => {
-          //　このノードが有効でない場合親のノードを書き換える
-          if (!editor.isActive(this.name)) {
-            return chain().setNode(this.name).run();
-          }
-          return true;
+          const { selection } = editor.state;
+          const image = selection instanceof NodeSelection ? selection.node : null;
+          if (!image || image.type.name !== "inline-image") return false;
+
+          const $from = selection.$from;
+          const parent = $from.parent;
+          const offset = selection.from - $from.start();
+          const before = parent.content.cut(0, offset);
+          const after = parent.content.cut(offset + image.nodeSize);
+          const picture = editor.schema.nodes[this.name].create(null, image);
+          const nodes = [
+            ...(before.size ? [parent.type.create(parent.attrs, before)] : []),
+            picture,
+            ...(after.size ? [parent.type.create(parent.attrs, after)] : []),
+          ];
+
+          return chain()
+            .command(({ tr }) => {
+              tr.replaceWith($from.before(), $from.after(), Fragment.fromArray(nodes));
+              return true;
+            })
+            .run();
         },
       pictureToImage:
         () =>
         ({ editor, chain }) => {
-          // このノードが有効な場合親のノードをparagraphに戻す
           if (editor.isActive("picture")) {
-            // sourceはpicture下でしか有効でないので消滅する
             return chain().setNode("paragraph").run();
           }
 

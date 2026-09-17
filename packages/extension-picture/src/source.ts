@@ -64,7 +64,9 @@ export const Source = Node.create<SourceOptions>({
     return {
       setSource:
         (attrs) =>
-        ({ chain, tr }) => {
+        ({ chain, editor, tr }) => {
+          if (!editor.isActive("picture")) return false;
+
           return chain()
             .insertContentAt(tr.selection.$anchor.pos, {
               type: this.name,

@@ -24,6 +24,7 @@ describe("Picture", () => {
   it("imageToPictureで現在のブロックをpictureに変換できる", () => {
     const { editor } = createEditor([Picture], '<p><img src="image.webp" alt="sample"></p>');
 
+    editor.commands.setNodeSelection(1);
     expect(editor.commands.imageToPicture()).toBe(true);
     expect(editor.getJSON().content?.[0]).toMatchObject({
       type: "picture",
@@ -41,6 +42,29 @@ describe("Picture", () => {
       type: "paragraph",
       content: [{ type: "text", text: "text" }],
     });
+
+    destroyEditor(editor);
+  });
+
+  it("画像を含まない段落はPictureに変換しない", () => {
+    const { editor } = createEditor([Picture], "<p>text</p>");
+
+    expect(editor.commands.imageToPicture()).toBe(false);
+    expect(editor.getJSON().content?.[0].type).toBe("paragraph");
+
+    destroyEditor(editor);
+  });
+
+  it("画像以外を含む段落でも選択画像だけをPictureに変換する", () => {
+    const { editor } = createEditor([Picture], '<p>text<img src="image.webp">after</p>');
+
+    editor.commands.setNodeSelection(5);
+    expect(editor.commands.imageToPicture()).toBe(true);
+    expect(editor.getJSON().content).toMatchObject([
+      { type: "paragraph", content: [{ type: "text", text: "text" }] },
+      { type: "picture", content: [{ type: "inline-image", attrs: { src: "image.webp" } }] },
+      { type: "paragraph", content: [{ type: "text", text: "after" }] },
+    ]);
 
     destroyEditor(editor);
   });

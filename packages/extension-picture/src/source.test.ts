@@ -37,4 +37,13 @@ describe("Source", () => {
 
     destroyEditor(editor);
   });
+
+  it("Picture外ではsourceを挿入しない", () => {
+    const { editor } = createEditor([Picture], "<p>text</p>");
+
+    expect(editor.commands.setSource({ srcset: "image.webp", media: "screen" })).toBe(false);
+    expect(editor.getJSON().content?.[0].type).toBe("paragraph");
+
+    destroyEditor(editor);
+  });
 });
