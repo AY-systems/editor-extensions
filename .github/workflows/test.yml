@@ -45,3 +45,6 @@ jobs:
 
       - name: Run tests
         run: vp test --dom
+
+      - name: Build packages
+        run: vp run build
