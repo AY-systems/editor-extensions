@@ -1,4 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -76,14 +77,27 @@ export const Source = Node.create<SourceOptions>({
         },
       updateSource:
         (attrs) =>
-        ({ chain }) => {
-          // TODO:無駄な操作をなくす
-          return chain()
-            .selectParentNode()
-            .selectNodeForward()
-            .updateAttributes(this.name, attrs)
-            .run();
-        },
+        ({ editor, chain }) =>
+          chain()
+            .command(({ tr }) => {
+              const { selection } = editor.state;
+              if (!editor.isActive("picture") || !(selection instanceof NodeSelection)) {
+                return false;
+              }
+
+              let sourcePos = selection.from + 1;
+              let updated = false;
+              selection.node.forEach((child) => {
+                if (child.type.name === this.name) {
+                  tr.setNodeMarkup(sourcePos, undefined, { ...child.attrs, ...attrs });
+                  updated = true;
+                }
+                sourcePos += child.nodeSize;
+              });
+
+              return updated;
+            })
+            .run(),
     };
   },
 });
