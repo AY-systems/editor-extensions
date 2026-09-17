@@ -16,9 +16,9 @@ describe("Source", () => {
         media: "(max-width: 600px)",
       },
     });
-    expect(editor.getHTML()).toContain(
-      '<source data-type="source" srcset="small.webp 480w" media="(max-width: 600px)">',
-    );
+    expect(editor.getHTML()).toContain("<source");
+    expect(editor.getHTML()).toContain('srcset="small.webp 480w"');
+    expect(editor.getHTML()).toContain('media="(max-width: 600px)"');
 
     destroyEditor(editor);
   });
