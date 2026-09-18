@@ -52,12 +52,9 @@ export const Sticky = Div.extend<StickyOptions>({
 
     return [
       "div",
-      mergeAttributes(
-        this.options.HTMLAttributes,
-        HTMLAttributes,
-        style ? { style } : {},
-        { "data-type": this.name },
-      ),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, style ? { style } : {}, {
+        "data-type": this.name,
+      }),
       0,
     ];
   },

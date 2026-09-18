@@ -138,7 +138,7 @@ describe("EmbedMedia", () => {
     destroyEditor(editor);
   });
 
-  it.each(["java\nscript:alert(1)", "https:\n//example.com", "https://example.com\u0000"]) (
+  it.each(["java\nscript:alert(1)", "https:\n//example.com", "https://example.com\u0000"])(
     "制御文字を含むiframeのURLを拒否する: %s",
     (src) => {
       const { editor } = createEditor([EmbedMedia], "<p>text</p>");

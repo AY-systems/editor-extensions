@@ -186,9 +186,8 @@ function getContainer(editorView: EditorView) {
   editorView.dom.dataset.uiNodeTagEditor = "";
   const parent = editorView.dom.parentElement;
   if (!parent) throw new Error("NodeTag requires the editor to have a parent element");
-  const originalPosition = getComputedStyle(parent).position === "static"
-    ? parent.style.position
-    : undefined;
+  const originalPosition =
+    getComputedStyle(parent).position === "static" ? parent.style.position : undefined;
   if (originalPosition !== undefined) parent.style.position = "relative";
 
   let container = parent.querySelector<HTMLDivElement>("[data-ui-node-tag-container]");

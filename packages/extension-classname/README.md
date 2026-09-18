@@ -1,4 +1,5 @@
 # ExtensionClassName
+
 A fresh Tiptap extension.
 
 ## Installation

@@ -98,7 +98,7 @@ export const TextDecoration = Mark.create<TextDecorationOptions>({
                 tr.addMark(
                   start,
                   end,
-                  this.type.create({ ...(mark?.attrs ?? {}), className: classNames.join(" ") }),
+                  this.type.create({ ...mark?.attrs, className: classNames.join(" ") }),
                 );
               });
               return true;
@@ -111,10 +111,13 @@ export const TextDecoration = Mark.create<TextDecorationOptions>({
         ({ chain, state }) => {
           const { from, to, empty } = state.selection;
           if (empty) {
-            return chain().focus().command(({ tr }) => {
-              tr.removeStoredMark(this.type);
-              return true;
-            }).run();
+            return chain()
+              .focus()
+              .command(({ tr }) => {
+                tr.removeStoredMark(this.type);
+                return true;
+              })
+              .run();
           }
 
           return chain()

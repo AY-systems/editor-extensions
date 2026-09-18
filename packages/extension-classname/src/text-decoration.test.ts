@@ -47,7 +47,9 @@ describe("TextDecoration", () => {
 
     expect(editor.commands.setTextDecoration("bold")).toBe(true);
     expect(editor.getHTML()).toContain('class="bold underline"');
-    expect(editor.getHTML()).toContain('<span class="bold" data-type="textDecoration">未装飾</span>');
+    expect(editor.getHTML()).toContain(
+      '<span class="bold" data-type="textDecoration">未装飾</span>',
+    );
     destroyEditor(editor);
   });
 

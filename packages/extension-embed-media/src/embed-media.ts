@@ -5,7 +5,14 @@ const safeIframeSrc = (value: unknown): string | null => {
 
   const src = value.trim();
   if (!src) return "";
-  if (/[\u0000-\u001f\u007f]/.test(src)) return null;
+  if (
+    Array.from(src).some((character) => {
+      const codePoint = character.charCodeAt(0);
+      return codePoint <= 0x1f || codePoint === 0x7f;
+    })
+  ) {
+    return null;
+  }
   if (src === "about:blank") return src;
 
   try {

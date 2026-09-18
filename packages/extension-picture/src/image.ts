@@ -143,10 +143,7 @@ export const InlineImage = BaseImage.extend({
   group: "inline",
 
   parseHTML() {
-    return [
-      { tag: 'img[data-type="inline-image"]' },
-      { tag: "img:not([data-type])" },
-    ];
+    return [{ tag: 'img[data-type="inline-image"]' }, { tag: "img:not([data-type])" }];
   },
 
   addCommands() {
