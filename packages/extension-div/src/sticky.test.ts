@@ -11,7 +11,7 @@ describe("Sticky", () => {
   });
 
   it("Stickyを削除できる", () => {
-    const { editor } = createEditor([Sticky], "<div data-type=\"sticky\"><p>テスト</p></div>");
+    const { editor } = createEditor([Sticky], '<div data-type="sticky"><p>テスト</p></div>');
     expect(editor.commands.removeSticky()).toBe(true);
     expect(editor.isActive("sticky")).toBe(false);
     destroyEditor(editor);

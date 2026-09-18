@@ -24,10 +24,7 @@ describe("Source", () => {
   });
 
   it("sourceノードを挿入・更新できる", () => {
-    const { editor } = createEditor(
-      [PictureKit],
-      '<picture><img src="image.webp"></picture>',
-    );
+    const { editor } = createEditor([PictureKit], '<picture><img src="image.webp"></picture>');
 
     expect(editor.commands.setSource({ srcset: "image.webp", media: "screen" })).toBe(true);
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
@@ -54,9 +51,9 @@ describe("Source", () => {
     );
 
     editor.commands.setNodeSelection(0);
-    expect(editor.commands.updateSource({ srcset: "large.webp", media: "(min-width: 600px)" })).toBe(
-      true,
-    );
+    expect(
+      editor.commands.updateSource({ srcset: "large.webp", media: "(min-width: 600px)" }),
+    ).toBe(true);
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "source",
       attrs: { srcset: "large.webp", media: "(min-width: 600px)" },
