@@ -46,13 +46,19 @@ const tableCellAttributes = {
 
 export const TableCell = TiptapTableCell.extend({
   addAttributes() {
-    return tableCellAttributes;
+    return {
+      ...this.parent?.(),
+      ...tableCellAttributes,
+    };
   },
 });
 
 export const TableHeader = TiptapTableHeader.extend({
   addAttributes() {
-    return tableCellAttributes;
+    return {
+      ...this.parent?.(),
+      ...tableCellAttributes,
+    };
   },
 });
 
@@ -116,13 +122,13 @@ export const TableDecoration = Extension.create({
 });
 // テーブル拡張
 export const Table = TiptapTable.extend({
-  // tableからcolgroupを除く(幅設定をwidthに任せるため)
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ node, HTMLAttributes }) {
+    const parentTable = this.parent?.({ node, HTMLAttributes });
+    const parentChildren = Array.isArray(parentTable) ? parentTable.slice(2) : [];
     const table: DOMOutputSpec = [
       "table",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {}),
-
-      ["tbody", 0],
+      ...parentChildren,
     ];
 
     return table;
@@ -191,7 +197,9 @@ export const Table = TiptapTable.extend({
       width: {
         default: "100%",
         parseHTML: (element) =>
-          element.getAttribute("tableWidth") || element.getAttribute("width") || element.style.width,
+          element.getAttribute("tableWidth") ||
+          element.getAttribute("width") ||
+          element.style.width,
         renderHTML: (attributes) => {
           if (attributes.width === "") return;
           return {
@@ -202,7 +210,9 @@ export const Table = TiptapTable.extend({
       height: {
         default: "auto",
         parseHTML: (element) =>
-          element.getAttribute("tableHeight") || element.getAttribute("height") || element.style.height,
+          element.getAttribute("tableHeight") ||
+          element.getAttribute("height") ||
+          element.style.height,
         renderHTML: (attributes) => {
           if (attributes.height === "") return;
           return {
