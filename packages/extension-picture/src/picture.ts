@@ -40,7 +40,7 @@ export const Picture = Node.create<PictureOptions>({
     return {
       imageToPicture:
         () =>
-        ({ editor, chain }) => {
+        ({ editor, tr }) => {
           const { selection } = editor.state;
           const image = selection instanceof NodeSelection ? selection.node : null;
           if (!image || image.type.name !== "inline-image") return false;
@@ -57,12 +57,8 @@ export const Picture = Node.create<PictureOptions>({
             ...(after.size ? [parent.type.create(parent.attrs, after)] : []),
           ];
 
-          return chain()
-            .command(({ tr }) => {
-              tr.replaceWith($from.before(), $from.after(), Fragment.fromArray(nodes));
-              return true;
-            })
-            .run();
+          tr.replaceWith($from.before(), $from.after(), Fragment.fromArray(nodes));
+          return true;
         },
       pictureToImage:
         () =>
