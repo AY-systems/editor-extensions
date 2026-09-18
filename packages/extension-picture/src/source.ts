@@ -65,15 +65,30 @@ export const Source = Node.create<SourceOptions>({
     return {
       setSource:
         (attrs) =>
-        ({ chain, editor, tr }) => {
-          if (!editor.isActive("picture")) return false;
+        ({ editor, tr }) => {
+          const selection = tr.selection;
+          if (selection instanceof NodeSelection) {
+            if (selection.node.type.name !== "picture") return false;
 
-          return chain()
-            .insertContentAt(tr.selection.$anchor.pos, {
-              type: this.name,
-              attrs: attrs,
-            })
-            .run();
+            tr.insert(selection.from + 1, editor.schema.nodes[this.name].create(attrs));
+            return true;
+          }
+
+          let pictureDepth = -1;
+          for (let depth = selection.$from.depth; depth > 0; depth -= 1) {
+            if (selection.$from.node(depth).type.name === "picture") {
+              pictureDepth = depth;
+              break;
+            }
+          }
+
+          if (pictureDepth < 0) return false;
+
+          tr.insert(
+            selection.$from.start(pictureDepth),
+            editor.schema.nodes[this.name].create(attrs),
+          );
+          return true;
         },
       updateSource:
         (attrs) =>

@@ -34,6 +34,34 @@ describe("Picture", () => {
     destroyEditor(editor);
   });
 
+  it("imageToPictureに続けてsetSourceを実行できる", () => {
+    const { editor } = createEditor([PictureKit], '<p><img src="image.webp"></p>');
+
+    editor.commands.setNodeSelection(1);
+    expect(
+      editor
+        .chain()
+        .imageToPicture()
+        .setSource({ srcset: "small.webp", media: "screen" })
+        .run(),
+    ).toBe(true);
+    expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
+      type: "source",
+      attrs: { srcset: "small.webp", media: "screen" },
+    });
+
+    destroyEditor(editor);
+  });
+
+  it("setInlineImageに続けてpicture化できる", () => {
+    const { editor } = createEditor([PictureKit], "<p></p>");
+
+    expect(editor.chain().setInlineImage({ src: "image.webp" }).imageToPicture().run()).toBe(true);
+    expect(editor.getJSON().content?.[0].type).toBe("picture");
+
+    destroyEditor(editor);
+  });
+
   it("pictureToImageをpicture以外で実行してもドキュメントを変更しない", () => {
     const { editor } = createEditor([PictureKit], "<p>text</p>");
 
