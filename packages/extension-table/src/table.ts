@@ -11,52 +11,56 @@ import { TextSelection } from "@tiptap/pm/state";
 
 export const TableRow = TiptapTableRow;
 
+const tableCellAttributes = {
+  // 列追加に必要
+  colspan: {
+    default: 1,
+  },
+  // 行追加に必要
+  rowspan: {
+    default: 1,
+  },
+  width: {
+    default: "",
+    parseHTML: (element: HTMLElement) =>
+      element.getAttribute("colWidth") || element.getAttribute("width") || element.style.width,
+    renderHTML: (attributes: { width: string }) => {
+      if (attributes.width === "") return;
+      return {
+        width: `${attributes.width}`,
+      };
+    },
+  },
+  height: {
+    default: "",
+    parseHTML: (element: HTMLElement) =>
+      element.getAttribute("colHeight") || element.getAttribute("height") || element.style.height,
+    renderHTML: (attributes: { height: string }) => {
+      if (attributes.height === "") return;
+      return {
+        height: `${attributes.height}`,
+      };
+    },
+  },
+};
+
 export const TableCell = TiptapTableCell.extend({
   addAttributes() {
-    return {
-      // 列追加に必要
-      colspan: {
-        default: 1,
-      },
-      // 行追加に必要
-      rowspan: {
-        default: 1,
-      },
-      width: {
-        default: "",
-        parseHTML: (element) =>
-          element.getAttribute("colWidth") || element.getAttribute("width") || element.style.width,
-        renderHTML: (attributes) => {
-          if (attributes.width === "") return;
-          return {
-            width: `${attributes.width}`,
-          };
-        },
-      },
-      height: {
-        default: "",
-        parseHTML: (element) =>
-          element.getAttribute("colHeight") ||
-          element.getAttribute("height") ||
-          element.style.height,
-        renderHTML: (attributes) => {
-          if (attributes.height === "") return;
-          return {
-            height: `${attributes.height}`,
-          };
-        },
-      },
-    };
+    return tableCellAttributes;
   },
 });
 
-export const TableHeader = TiptapTableHeader;
+export const TableHeader = TiptapTableHeader.extend({
+  addAttributes() {
+    return tableCellAttributes;
+  },
+});
 
 export const TableDecoration = Extension.create({
   name: "tableDecoration",
   addOptions() {
     return {
-      types: ["table", "tableRow", "tableCell"],
+      types: ["table", "tableRow", "tableCell", "tableHeader"],
     };
   },
 
