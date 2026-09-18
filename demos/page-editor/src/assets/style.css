@@ -3,7 +3,10 @@
 .editor_view {
   ul,
   li,
-  div {
+  div,
+  table,
+  th,
+  td {
     padding: 0.6rem 0.3rem;
   }
 
@@ -11,5 +14,10 @@
   li:not(:last-child),
   div:not([data-type="grid"]) > *:not(:last-child) {
     margin-bottom: 1rem;
+  }
+
+  colgroup,
+  col {
+    display: none;
   }
 }

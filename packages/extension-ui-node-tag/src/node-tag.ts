@@ -19,6 +19,7 @@ const nodeTagStyle = `
   font-size: 0.6rem;
   line-height: 0.8rem;
   color: #888;
+  font-weight:normal;
   background: rgba(255, 255, 255);
 }
 `;
@@ -41,7 +42,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
   addOptions() {
     return {
-      ignoreNodeTypes: [],
+      ignoreNodeTypes: ["tableRow"],
     };
   },
   addDecorations() {
@@ -60,6 +61,13 @@ export const NodeTag = Extension.create<NodeTagOptions>({
 
           if (node.type.name === "listItem") {
             name = "li";
+          }
+          if (node.type.name === "tableHeader") {
+            name = "th";
+          }
+
+          if (node.type.name === "tableCell") {
+            name = "td";
           }
 
           decorations.push(
