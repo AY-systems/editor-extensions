@@ -196,11 +196,11 @@ export const Table = TiptapTable.extend({
       },
       height: {
         default: "auto",
-        parseHTML: (element) => element.getAttribute("tableHeight") || element.style.width,
+        parseHTML: (element) => element.getAttribute("tableHeight") || element.style.height,
         renderHTML: (attributes) => {
-          if (attributes.width === "") return;
+          if (attributes.height === "") return;
           return {
-            width: `${attributes.width}`,
+            height: `${attributes.height}`,
           };
         },
       },
