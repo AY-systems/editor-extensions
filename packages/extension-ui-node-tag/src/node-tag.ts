@@ -9,9 +9,7 @@ const nodeTagStyle = `
   border: 1px dashed #aaa;
   position: relative;
 }
-
-[data-node-tag]::before {
-  content: attr(data-node-tag);
+[data-node-tag-label] {
   position: absolute;
   z-index: 1;
   top: -0.5rem;
@@ -19,8 +17,10 @@ const nodeTagStyle = `
   font-size: 0.6rem;
   line-height: 0.8rem;
   color: #888;
-  font-weight:normal;
+  font-weight: normal;
   background: rgba(255, 255, 255);
+  pointer-events: none;
+  user-select: none;
 }
 `;
 
@@ -42,7 +42,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
   addOptions() {
     return {
-      ignoreNodeTypes: ["tableRow", "source"],
+      ignoreNodeTypes: ["tableRow"],
     };
   },
   addDecorations() {
@@ -50,7 +50,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
       create: ({ state }) => {
         const decorations: Decoration[] = [];
         state.doc.descendants((node, pos) => {
-          if (node.isText) return;
+          if (node.isText || node.isLeaf) return;
           if (this.options.ignoreNodeTypes.includes(node.type.name)) return;
           let name = node.type.name;
 
@@ -74,6 +74,19 @@ export const NodeTag = Extension.create<NodeTagOptions>({
             Decoration.Node(pos, pos + node.nodeSize, {
               "data-node-tag": name,
             }),
+          );
+
+          decorations.push(
+            Decoration.Widget(
+              node.isLeaf || node.isAtom ? pos : pos + 1,
+              () => {
+                const label = document.createElement("span");
+                label.dataset.nodeTagLabel = "";
+                label.textContent = name;
+                return label;
+              },
+              { key: `node-tag-${pos}-${name}`, side: -1 },
+            ),
           );
         });
         return decorations;
