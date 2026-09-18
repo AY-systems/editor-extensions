@@ -1,6 +1,6 @@
 import { Extension, mergeAttributes, Node } from "@tiptap/core";
 import { Fragment } from "@tiptap/pm/model";
-import { NodeSelection } from "@tiptap/pm/state";
+import { NodeSelection, Plugin } from "@tiptap/pm/state";
 import { Source } from "./source";
 import { InlineImage } from "./image";
 
@@ -28,6 +28,8 @@ export const Picture = Node.create<PictureOptions>({
   name: "picture",
   group: "block",
   content: "(inline|source)+",
+  atom: true,
+  isolating: true,
 
   parseHTML() {
     return [{ tag: `picture` }];
@@ -72,6 +74,47 @@ export const Picture = Node.create<PictureOptions>({
 
 export const PictureKit = Extension.create({
   name: "pictureKit",
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handleKeyDown: (view, event) => {
+            if (event.key !== "Backspace" && event.key !== "Delete") return false;
+
+            const { state } = view;
+            const { selection } = state;
+            if (!(selection instanceof NodeSelection)) return false;
+
+            if (selection.node.type.name === "picture") {
+              view.dispatch(state.tr.deleteSelection());
+              return true;
+            }
+
+            if (selection.node.type.name !== "inline-image") return false;
+
+            let pictureDepth = -1;
+            for (let depth = selection.$from.depth; depth > 0; depth -= 1) {
+              if (selection.$from.node(depth).type.name === "picture") {
+                pictureDepth = depth;
+                break;
+              }
+            }
+
+            if (pictureDepth < 0) return false;
+
+            view.dispatch(
+              state.tr.delete(
+                selection.$from.before(pictureDepth),
+                selection.$from.after(pictureDepth),
+              ),
+            );
+            return true;
+          },
+        },
+      }),
+    ];
+  },
 
   addExtensions() {
     return [Picture, InlineImage, Source];
