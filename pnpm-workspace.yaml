@@ -11,6 +11,7 @@ catalog:
   "@types/node": ^24
 
   "@tiptap/extension-image": ^3.31.0
+  "@tiptap/extension-table": ^3.31.0
   "@tiptap/core": ^3.31.0
   "@tiptap/pm": ^3.31.0
   "@tiptap/starter-kit": "^3.31.0"
