@@ -43,7 +43,7 @@ export const Picture = Node.create<PictureOptions>({
       imageToPicture:
         () =>
         ({ editor, tr }) => {
-          const { selection } = editor.state;
+          const { selection } = tr;
           const image = selection instanceof NodeSelection ? selection.node : null;
           if (!image || image.type.name !== "inline-image") return false;
 

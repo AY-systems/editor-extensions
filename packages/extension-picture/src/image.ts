@@ -128,11 +128,13 @@ export const BlockImage = BaseImage.extend({
     return {
       setBlockImage:
         (attrs: ImageAttributes) =>
-        ({ commands }) =>
-          commands.insertContent({
-            type: this.name,
-            attrs,
-          }),
+        ({ chain, state }) => {
+          const position = state.selection.from;
+          return chain()
+            .insertContent({ type: this.name, attrs })
+            .setNodeSelection(position)
+            .run();
+        },
     };
   },
 });
@@ -150,11 +152,13 @@ export const InlineImage = BaseImage.extend({
     return {
       setInlineImage:
         (attrs: ImageAttributes) =>
-        ({ commands }) =>
-          commands.insertContent({
-            type: this.name,
-            attrs,
-          }),
+        ({ chain, state }) => {
+          const position = state.selection.from;
+          return chain()
+            .insertContent({ type: this.name, attrs })
+            .setNodeSelection(position)
+            .run();
+        },
     };
   },
 });

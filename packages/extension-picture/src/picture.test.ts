@@ -53,6 +53,15 @@ describe("Picture", () => {
     destroyEditor(editor);
   });
 
+  it("setInlineImageに続けてpicture化できる", () => {
+    const { editor } = createEditor([PictureKit], "<p></p>");
+
+    expect(editor.chain().setInlineImage({ src: "image.webp" }).imageToPicture().run()).toBe(true);
+    expect(editor.getJSON().content?.[0].type).toBe("picture");
+
+    destroyEditor(editor);
+  });
+
   it("pictureToImageをpicture以外で実行してもドキュメントを変更しない", () => {
     const { editor } = createEditor([PictureKit], "<p>text</p>");
 
