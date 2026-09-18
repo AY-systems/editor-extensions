@@ -113,6 +113,9 @@ catalogs:
     '@tiptap/core':
       specifier: ^3.31.0
       version: 3.31.3
+    '@tiptap/extension-image':
+      specifier: ^3.31.0
+      version: 3.31.3
     '@tiptap/pm':
       specifier: ^3.31.0
       version: 3.31.3
@@ -202,6 +205,9 @@ importers:
       extension-embed-media:
         specifier: workspace:^
         version: link:../../packages/extension-embed-media
+      extension-picture:
+        specifier: workspace:^
+        version: link:../../packages/extension-picture
       extension-ui-node-tag:
         specifier: workspace:^
         version: link:../../packages/extension-ui-node-tag
@@ -266,6 +272,21 @@ importers:
       '@tiptap/core':
         specifier: 'catalog:'
         version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: 'catalog:'
+        version: 3.31.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.3)(jiti@2.7.0)(typescript@6.0.3)
+
+  packages/extension-picture:
+    devDependencies:
+      '@tiptap/core':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/extension-image':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
       '@tiptap/pm':
         specifier: 'catalog:'
         version: 3.31.3
@@ -813,6 +834,11 @@ packages:
     peerDependencies:
       '@tiptap/core': 3.31.3
       '@tiptap/pm': 3.31.3
+
+  '@tiptap/extension-image@3.31.3':
+    resolution: {integrity: sha512-wWNG9BOtx2Cg4vwxPVGDIJ5DGX+ETkldeoaFJLB1NXUL4OPUiVTf8cHZ+hdYgJWP704BEB7jQgjlpvdi6VigTg==}
+    peerDependencies:
+      '@tiptap/core': 3.31.3
 
   '@tiptap/extension-italic@3.31.3':
     resolution: {integrity: sha512-ibGvdvAPyfxBMUVNRI43eb9h2/Jka1MRG5GtnGqbcCX/2+Y/y0EOfFrPQPkuYphiWQYyu9+FzPKMB/pjuaLuKQ==}
@@ -2102,6 +2128,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.31.3(@tiptap/pm@3.31.3)
       '@tiptap/pm': 3.31.3
+
+  '@tiptap/extension-image@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))':
+    dependencies:
+      '@tiptap/core': 3.31.3(@tiptap/pm@3.31.3)
 
   '@tiptap/extension-italic@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))':
     dependencies:
