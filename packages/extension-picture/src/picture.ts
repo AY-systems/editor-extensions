@@ -53,13 +53,16 @@ export const Picture = Node.create<PictureOptions>({
           const before = parent.content.cut(0, offset);
           const after = parent.content.cut(offset + image.nodeSize);
           const picture = editor.schema.nodes[this.name].create(null, image);
+          const beforeNode = before.size ? parent.type.create(parent.attrs, before) : null;
           const nodes = [
-            ...(before.size ? [parent.type.create(parent.attrs, before)] : []),
+            ...(beforeNode ? [beforeNode] : []),
             picture,
             ...(after.size ? [parent.type.create(parent.attrs, after)] : []),
           ];
 
+          const picturePos = $from.before() + (beforeNode?.nodeSize ?? 0);
           tr.replaceWith($from.before(), $from.after(), Fragment.fromArray(nodes));
+          tr.setSelection(NodeSelection.create(tr.doc, picturePos));
           return true;
         },
       pictureToImage:

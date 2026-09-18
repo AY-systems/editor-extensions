@@ -66,8 +66,6 @@ export const Source = Node.create<SourceOptions>({
       setSource:
         (attrs) =>
         ({ editor, tr }) => {
-          if (!editor.isActive("picture")) return false;
-
           const selection = tr.selection;
           if (selection instanceof NodeSelection) {
             if (selection.node.type.name !== "picture") return false;
@@ -75,6 +73,8 @@ export const Source = Node.create<SourceOptions>({
             tr.insert(selection.from + 1, editor.schema.nodes[this.name].create(attrs));
             return true;
           }
+
+          if (!editor.isActive("picture")) return false;
 
           let pictureDepth = -1;
           for (let depth = selection.$from.depth; depth > 0; depth -= 1) {
