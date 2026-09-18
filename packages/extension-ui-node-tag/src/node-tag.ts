@@ -42,7 +42,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
   addOptions() {
     return {
-      ignoreNodeTypes: ["tableRow"],
+      ignoreNodeTypes: ["tableRow", "source"],
     };
   },
   addDecorations() {

@@ -20,4 +20,9 @@
   col {
     display: none;
   }
+  picture {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+  }
 }
