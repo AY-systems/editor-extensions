@@ -2,6 +2,8 @@ name: Test packages
 
 on:
   push:
+    branches:
+      - master
     paths:
       - ".github/workflows/test.yml"
       - "packages/**"
