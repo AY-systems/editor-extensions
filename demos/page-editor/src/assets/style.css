@@ -2,11 +2,17 @@
 
 .editor_view {
   ul,
+  ol,
   li,
   div,
   table,
   th,
-  td {
+  td,
+  blockquote,
+  picture,
+  pre,
+  [data-type="iframe-wrapper"],
+  p:has(> img[data-type="inline-image"]) {
     padding: 0.6rem 0.3rem;
   }
 
@@ -20,7 +26,10 @@
   col {
     display: none;
   }
-  picture {
+
+  p:has(> img[data-type="inline-image"]),
+  picture,
+  [data-type="iframe-wrapper"] {
     display: flex;
     width: fit-content;
     height: fit-content;
