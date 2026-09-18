@@ -211,6 +211,9 @@ importers:
       extension-picture:
         specifier: workspace:^
         version: link:../../packages/extension-picture
+      extension-table:
+        specifier: workspace:^
+        version: link:../../packages/extension-table
       extension-ui-node-tag:
         specifier: workspace:^
         version: link:../../packages/extension-ui-node-tag
