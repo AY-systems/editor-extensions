@@ -74,8 +74,6 @@ export const Source = Node.create<SourceOptions>({
             return true;
           }
 
-          if (!editor.isActive("picture")) return false;
-
           let pictureDepth = -1;
           for (let depth = selection.$from.depth; depth > 0; depth -= 1) {
             if (selection.$from.node(depth).type.name === "picture") {
