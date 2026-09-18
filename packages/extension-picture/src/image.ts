@@ -128,11 +128,10 @@ export const BlockImage = BaseImage.extend({
     return {
       setBlockImage:
         (attrs: ImageAttributes) =>
-        ({ chain, state }) => {
-          const position = state.selection.from;
+        ({ chain, state, tr }) => {
           return chain()
             .insertContent({ type: this.name, attrs })
-            .setNodeSelection(position)
+            .setNodeSelection(tr.mapping.map(state.selection.from))
             .run();
         },
     };
