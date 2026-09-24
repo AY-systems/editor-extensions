@@ -18,9 +18,9 @@
     "extension-classname": "workspace:^",
     "extension-div": "workspace:^",
     "extension-embed-media": "workspace:^",
+    "extension-node-tag": "workspace:^",
     "extension-picture": "workspace:^",
     "extension-table": "workspace:^",
-    "extension-ui-node-tag": "workspace:^",
     "tailwindcss": "catalog:",
     "vue": "catalog:"
   },

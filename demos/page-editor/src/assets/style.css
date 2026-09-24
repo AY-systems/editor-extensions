@@ -2,8 +2,17 @@
 
 .editor_view {
   ul,
+  ol,
   li,
-  div {
+  div,
+  table,
+  th,
+  td,
+  blockquote,
+  picture,
+  pre,
+  [data-type="iframe-wrapper"],
+  p:has(> img[data-type="inline-image"]) {
     padding: 0.6rem 0.3rem;
   }
 
@@ -11,5 +20,18 @@
   li:not(:last-child),
   div:not([data-type="grid"]) > *:not(:last-child) {
     margin-bottom: 1rem;
+  }
+
+  colgroup,
+  col {
+    display: none;
+  }
+
+  p:has(> img[data-type="inline-image"]),
+  picture,
+  [data-type="iframe-wrapper"] {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
   }
 }
