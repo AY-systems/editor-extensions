@@ -181,6 +181,27 @@ importers:
 
   demos/page-editor:
     dependencies:
+      '@aysys/extension-anchor-link':
+        specifier: workspace:^
+        version: link:../../packages/extension-anchor-link
+      '@aysys/extension-classname':
+        specifier: workspace:^
+        version: link:../../packages/extension-classname
+      '@aysys/extension-div':
+        specifier: workspace:^
+        version: link:../../packages/extension-div
+      '@aysys/extension-embed-media':
+        specifier: workspace:^
+        version: link:../../packages/extension-embed-media
+      '@aysys/extension-node-tag':
+        specifier: workspace:^
+        version: link:../../packages/extension-node-tag
+      '@aysys/extension-picture':
+        specifier: workspace:^
+        version: link:../../packages/extension-picture
+      '@aysys/extension-table':
+        specifier: workspace:^
+        version: link:../../packages/extension-table
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))
@@ -196,27 +217,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 6.0.8(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(vue@3.5.42(typescript@6.0.3))
-      extension-anchor-link:
-        specifier: workspace:^
-        version: link:../../packages/extension-anchor-link
-      extension-classname:
-        specifier: workspace:^
-        version: link:../../packages/extension-classname
-      extension-div:
-        specifier: workspace:^
-        version: link:../../packages/extension-div
-      extension-embed-media:
-        specifier: workspace:^
-        version: link:../../packages/extension-embed-media
-      extension-node-tag:
-        specifier: workspace:^
-        version: link:../../packages/extension-ui-node-tag
-      extension-picture:
-        specifier: workspace:^
-        version: link:../../packages/extension-picture
-      extension-table:
-        specifier: workspace:^
-        version: link:../../packages/extension-table
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
@@ -285,6 +285,18 @@ importers:
         specifier: 'catalog:'
         version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.3)(jiti@2.7.0)(typescript@6.0.3)
 
+  packages/extension-node-tag:
+    devDependencies:
+      '@tiptap/core':
+        specifier: 'catalog:'
+        version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: 'catalog:'
+        version: 3.31.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.3)(jiti@2.7.0)(typescript@6.0.3)
+
   packages/extension-picture:
     devDependencies:
       '@tiptap/core':
@@ -308,18 +320,6 @@ importers:
       '@tiptap/extension-table':
         specifier: 'catalog:'
         version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
-      '@tiptap/pm':
-        specifier: 'catalog:'
-        version: 3.31.3
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.2.9(@types/node@22.20.2)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@22.20.2)(jiti@2.7.0)(typescript@6.0.3))(happy-dom@20.14.3)(jiti@2.7.0)(typescript@6.0.3)
-
-  packages/extension-ui-node-tag:
-    devDependencies:
-      '@tiptap/core':
-        specifier: 'catalog:'
-        version: 3.31.3(@tiptap/pm@3.31.3)
       '@tiptap/pm':
         specifier: 'catalog:'
         version: 3.31.3

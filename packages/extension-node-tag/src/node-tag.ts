@@ -25,7 +25,7 @@ const nodeTagStyle = `
 `;
 
 export const NodeTag = Extension.create<NodeTagOptions>({
-  name: "extension-node-tag",
+  name: "aysys-extension-node-tag",
   addStorage() {
     return { style: undefined as HTMLStyleElement | undefined };
   },

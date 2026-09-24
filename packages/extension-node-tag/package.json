@@ -1,5 +1,5 @@
 {
-  "name": "extension-node-tag",
+  "name": "@aysys/extension-node-tag",
   "version": "1.0.0",
   "description": "",
   "type": "module",

@@ -1,5 +1,5 @@
 {
-  "name": "extension-embed-media",
+  "name": "@aysys/extension-embed-media",
   "version": "1.0.0",
   "description": "",
   "type": "module",

@@ -5,5 +5,5 @@ A fresh Tiptap extension.
 ## Installation
 
 ```bash
-npm install extension-node-tag
+npm install @aysys/extension-node-tag
 ```
