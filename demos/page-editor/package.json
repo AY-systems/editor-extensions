@@ -14,15 +14,15 @@
     "@tiptap/starter-kit": "catalog:",
     "@tiptap/vue-3": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
-    "extension-anchor-link": "workspace:^",
-    "extension-classname": "workspace:^",
-    "extension-div": "workspace:^",
-    "extension-embed-media": "workspace:^",
-    "extension-node-tag": "workspace:^",
-    "extension-picture": "workspace:^",
-    "extension-table": "workspace:^",
     "tailwindcss": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "@aysys/extension-anchor-link": "workspace:^",
+    "@aysys/extension-classname": "workspace:^",
+    "@aysys/extension-div": "workspace:^",
+    "@aysys/extension-embed-media": "workspace:^",
+    "@aysys/extension-node-tag": "workspace:^",
+    "@aysys/extension-picture": "workspace:^",
+    "@aysys/extension-table": "workspace:^"
   },
   "devDependencies": {
     "typescript": "catalog:",
