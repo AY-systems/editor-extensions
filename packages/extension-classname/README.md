@@ -5,5 +5,5 @@ A fresh Tiptap extension.
 ## Installation
 
 ```bash
-npm install extension-classname
+npm install @aysys/extension-classname
 ```

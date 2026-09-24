@@ -5,5 +5,5 @@ A fresh Tiptap extension.
 ## Installation
 
 ```bash
-npm install extension-table
+npm install @aysys/extension-table
 ```

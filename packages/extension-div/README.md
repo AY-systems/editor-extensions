@@ -5,5 +5,5 @@ A fresh Tiptap extension.
 ## Installation
 
 ```bash
-npm install extension-div
+npm install @aysys/extension-div
 ```
