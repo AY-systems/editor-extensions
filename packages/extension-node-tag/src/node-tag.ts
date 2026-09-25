@@ -12,6 +12,7 @@ declare module "@tiptap/core" {
       showNodeTag: () => ReturnType;
       hideNodeTag: () => ReturnType;
       toggleNodeTag: () => ReturnType;
+      isNodeTagVisible: () => ReturnType;
     };
   }
 }
@@ -80,17 +81,11 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         },
       toggleNodeTag:
         () =>
-        ({ tr, dispatch }) => {
-          if (dispatch) {
-            const currentVisibility = tr.getMeta(NODE_TAG_VISIBILITY_META);
-            const isVisible =
-              typeof currentVisibility === "boolean" ? currentVisibility : this.storage.visible;
-            dispatch(
-              tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, !isVisible),
-            );
-          }
-          return true;
+        ({ commands }) => {
+          const isVisible = commands.isNodeTagVisible();
+          return isVisible ? commands.hideNodeTag() : commands.showNodeTag();
         },
+      isNodeTagVisible: () => () => this.storage.visible,
     };
   },
   addDecorations() {
