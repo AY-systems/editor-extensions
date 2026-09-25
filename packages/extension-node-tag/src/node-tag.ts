@@ -1,7 +1,19 @@
 import { Decoration, Extension } from "@tiptap/core";
 
+const NODE_TAG_VISIBILITY_META = "nodeTagVisibility";
+
 export interface NodeTagOptions {
   ignoreNodeTypes: string[];
+}
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    nodeTag: {
+      showNodeTag: () => ReturnType;
+      hideNodeTag: () => ReturnType;
+      toggleNodeTag: () => ReturnType;
+    };
+  }
 }
 
 const nodeTagStyle = `
@@ -27,7 +39,10 @@ const nodeTagStyle = `
 export const NodeTag = Extension.create<NodeTagOptions>({
   name: "aysys-extension-node-tag",
   addStorage() {
-    return { style: undefined as HTMLStyleElement | undefined };
+    return {
+      style: undefined as HTMLStyleElement | undefined,
+      visible: true,
+    };
   },
   onCreate() {
     if (typeof document === "undefined") return;
@@ -45,10 +60,54 @@ export const NodeTag = Extension.create<NodeTagOptions>({
       ignoreNodeTypes: ["tableRow"],
     };
   },
+  addCommands() {
+    return {
+      showNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
+          }
+          return true;
+        },
+      hideNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, false));
+          }
+          return true;
+        },
+      toggleNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            const currentVisibility = tr.getMeta(NODE_TAG_VISIBILITY_META);
+            const isVisible =
+              typeof currentVisibility === "boolean" ? currentVisibility : this.storage.visible;
+            dispatch(
+              tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, !isVisible),
+            );
+          }
+          return true;
+        },
+    };
+  },
   addDecorations() {
     return {
+      shouldUpdate: ({ tr }) => {
+        const visibility = tr.getMeta(NODE_TAG_VISIBILITY_META);
+        if (typeof visibility === "boolean") {
+          this.storage.visible = visibility;
+          return true;
+        }
+
+        return tr.docChanged;
+      },
       create: ({ state }) => {
         const decorations: Decoration[] = [];
+        if (!this.storage.visible) return decorations;
+
         state.doc.descendants((node, pos) => {
           if (node.isText || node.isLeaf) return;
           if (this.options.ignoreNodeTypes.includes(node.type.name)) return;
