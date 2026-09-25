@@ -4,6 +4,16 @@ export interface NodeTagOptions {
   ignoreNodeTypes: string[];
 }
 
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    nodeTag: {
+      showNodeTag: () => ReturnType;
+      hideNodeTag: () => ReturnType;
+      toggleNodeTag: () => ReturnType;
+    };
+  }
+}
+
 const nodeTagStyle = `
 [data-node-tag] {
   border: 1px dashed #aaa;
@@ -27,7 +37,10 @@ const nodeTagStyle = `
 export const NodeTag = Extension.create<NodeTagOptions>({
   name: "aysys-extension-node-tag",
   addStorage() {
-    return { style: undefined as HTMLStyleElement | undefined };
+    return {
+      style: undefined as HTMLStyleElement | undefined,
+      visible: true,
+    };
   },
   onCreate() {
     if (typeof document === "undefined") return;
@@ -45,10 +58,43 @@ export const NodeTag = Extension.create<NodeTagOptions>({
       ignoreNodeTypes: ["tableRow"],
     };
   },
+  addCommands() {
+    return {
+      showNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            this.storage.visible = true;
+            dispatch(tr.setMeta("addToHistory", false));
+          }
+          return true;
+        },
+      hideNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            this.storage.visible = false;
+            dispatch(tr.setMeta("addToHistory", false));
+          }
+          return true;
+        },
+      toggleNodeTag:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            this.storage.visible = !this.storage.visible;
+            dispatch(tr.setMeta("addToHistory", false));
+          }
+          return true;
+        },
+    };
+  },
   addDecorations() {
     return {
       create: ({ state }) => {
         const decorations: Decoration[] = [];
+        if (!this.storage.visible) return decorations;
+
         state.doc.descendants((node, pos) => {
           if (node.isText || node.isLeaf) return;
           if (this.options.ignoreNodeTypes.includes(node.type.name)) return;
