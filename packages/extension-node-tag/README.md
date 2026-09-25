@@ -14,7 +14,6 @@ npm install @aysys/extension-node-tag
 editor.commands.showNodeTag(); // 表示
 editor.commands.hideNodeTag(); // 非表示
 editor.commands.toggleNodeTag(); // 表示状態を切替
-const isVisible = editor.commands.isNodeTagVisible(); // 表示中か確認
 ```
 
 表示状態はエディタごとに管理され、エディタを破棄すると初期状態（表示）に戻ります。
