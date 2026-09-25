@@ -1,5 +1,7 @@
 import { Decoration, Extension } from "@tiptap/core";
 
+const NODE_TAG_VISIBILITY_META = "nodeTagVisibility";
+
 export interface NodeTagOptions {
   ignoreNodeTypes: string[];
 }
@@ -65,7 +67,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         ({ tr, dispatch }) => {
           if (dispatch) {
             this.storage.visible = true;
-            dispatch(tr.setMeta("addToHistory", false));
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
           }
           return true;
         },
@@ -74,7 +76,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         ({ tr, dispatch }) => {
           if (dispatch) {
             this.storage.visible = false;
-            dispatch(tr.setMeta("addToHistory", false));
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
           }
           return true;
         },
@@ -83,7 +85,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         ({ tr, dispatch }) => {
           if (dispatch) {
             this.storage.visible = !this.storage.visible;
-            dispatch(tr.setMeta("addToHistory", false));
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
           }
           return true;
         },
@@ -91,6 +93,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
   addDecorations() {
     return {
+      shouldUpdate: ({ tr }) => tr.docChanged || tr.getMeta(NODE_TAG_VISIBILITY_META) === true,
       create: ({ state }) => {
         const decorations: Decoration[] = [];
         if (!this.storage.visible) return decorations;
