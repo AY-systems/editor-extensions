@@ -66,7 +66,6 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         () =>
         ({ tr, dispatch }) => {
           if (dispatch) {
-            this.storage.visible = true;
             dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
           }
           return true;
@@ -75,8 +74,7 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         () =>
         ({ tr, dispatch }) => {
           if (dispatch) {
-            this.storage.visible = false;
-            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
+            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, false));
           }
           return true;
         },
@@ -84,8 +82,12 @@ export const NodeTag = Extension.create<NodeTagOptions>({
         () =>
         ({ tr, dispatch }) => {
           if (dispatch) {
-            this.storage.visible = !this.storage.visible;
-            dispatch(tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, true));
+            const currentVisibility = tr.getMeta(NODE_TAG_VISIBILITY_META);
+            const isVisible =
+              typeof currentVisibility === "boolean" ? currentVisibility : this.storage.visible;
+            dispatch(
+              tr.setMeta("addToHistory", false).setMeta(NODE_TAG_VISIBILITY_META, !isVisible),
+            );
           }
           return true;
         },
@@ -93,7 +95,15 @@ export const NodeTag = Extension.create<NodeTagOptions>({
   },
   addDecorations() {
     return {
-      shouldUpdate: ({ tr }) => tr.docChanged || tr.getMeta(NODE_TAG_VISIBILITY_META) === true,
+      shouldUpdate: ({ tr }) => {
+        const visibility = tr.getMeta(NODE_TAG_VISIBILITY_META);
+        if (typeof visibility === "boolean") {
+          this.storage.visible = visibility;
+          return true;
+        }
+
+        return tr.docChanged;
+      },
       create: ({ state }) => {
         const decorations: Decoration[] = [];
         if (!this.storage.visible) return decorations;
