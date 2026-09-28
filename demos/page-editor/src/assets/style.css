@@ -11,8 +11,8 @@
   blockquote,
   picture,
   pre,
-  [data-type="iframe-wrapper"],
-  p:has(> img[data-type="inline-image"]) {
+  [data-type="iframeWrapper"],
+  p:has(> img[data-type="inlineImage"]) {
     padding: 0.6rem 0.3rem;
   }
 
@@ -27,9 +27,9 @@
     display: none;
   }
 
-  p:has(> img[data-type="inline-image"]),
+  p:has(> img[data-type="inlineImage"]),
   picture,
-  [data-type="iframe-wrapper"] {
+  [data-type="iframeWrapper"] {
     display: flex;
     width: fit-content;
     height: fit-content;
