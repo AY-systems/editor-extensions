@@ -5,10 +5,10 @@ type ImageAttributes = Record<string, unknown>;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    "inline-image": {
+    inlineImage: {
       setInlineImage: (attrs: ImageAttributes) => ReturnType;
     };
-    "block-image": {
+    blockImage: {
       setBlockImage: (attrs: ImageAttributes) => ReturnType;
     };
   }
@@ -121,7 +121,7 @@ export const BlockImage = BaseImage.extend({
   group: "block",
 
   parseHTML() {
-    return [{ tag: 'img[data-type="block-image"]' }];
+    return [{ tag: 'img[data-type="blockImage"]' }];
   },
 
   addCommands() {
@@ -144,7 +144,10 @@ export const InlineImage = BaseImage.extend({
   group: "inline",
 
   parseHTML() {
-    return [{ tag: 'img[data-type="inline-image"]' }, { tag: "img:not([data-type])" }];
+    return [
+      { tag: 'img[data-type="inlineImage"]' },
+      { tag: "img:not([data-type])" },
+    ];
   },
 
   addCommands() {

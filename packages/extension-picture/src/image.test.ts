@@ -8,7 +8,7 @@ describe("Picture画像", () => {
 
     expect(editor.commands.setBlockImage({ src: "block.webp", alt: "block" })).toBe(true);
     expect(editor.getJSON().content?.[0]).toMatchObject({
-      type: "block-image",
+      type: "blockImage",
       attrs: { src: "block.webp", alt: "block" },
     });
 
@@ -20,22 +20,22 @@ describe("Picture画像", () => {
 
     expect(editor.commands.setInlineImage({ src: "inline.webp" })).toBe(true);
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
-      type: "inline-image",
+      type: "inlineImage",
       attrs: { src: "inline.webp" },
     });
 
     destroyEditor(editor);
   });
 
-  it("data-typeでブロック画像とインライン画像を解析し分ける", () => {
+  it("新しいdata-typeも解析できる", () => {
     const { editor } = createEditor(
       [BlockImage, InlineImage],
-      '<p><img data-type="inline-image" src="inline.webp"></p><img data-type="block-image" src="block.webp">',
+      '<p><img data-type="inlineImage" src="inline.webp"></p><img data-type="blockImage" src="block.webp">',
     );
 
     expect(editor.getJSON().content).toMatchObject([
-      { type: "paragraph", content: [{ type: "inline-image" }] },
-      { type: "block-image", attrs: { src: "block.webp" } },
+      { type: "paragraph", content: [{ type: "inlineImage" }] },
+      { type: "blockImage", attrs: { src: "block.webp" } },
     ]);
 
     destroyEditor(editor);
