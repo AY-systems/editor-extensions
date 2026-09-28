@@ -178,7 +178,7 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
 });
 
 const IframeWrapper = Node.create({
-  name: "iframe-wrapper",
+  name: "iframeWrapper",
   group: "block",
   content: "embedMedia",
 

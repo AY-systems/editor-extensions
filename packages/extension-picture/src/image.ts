@@ -116,7 +116,7 @@ const BaseImage = Image.extend({
 });
 
 export const BlockImage = BaseImage.extend({
-  name: "block-image",
+  name: "blockImage",
   inline: false,
   group: "block",
 
@@ -139,7 +139,7 @@ export const BlockImage = BaseImage.extend({
 });
 
 export const InlineImage = BaseImage.extend({
-  name: "inline-image",
+  name: "inlineImage",
   inline: true,
   group: "inline",
 
