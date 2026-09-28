@@ -153,7 +153,7 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
                 if (dispatch) {
                   const { $from } = tr.selection;
                   chain().insertContentAt($from.pos, {
-                    type: "iframe-wrapper",
+                    type: "iframeWrapper",
                     content: [{ type: this.name, attrs: { ...attrs, src } }],
                   });
                 }
@@ -178,7 +178,7 @@ export const EmbedMedia = Node.create<EmbedMediaOptions>({
 });
 
 const IframeWrapper = Node.create({
-  name: "iframe-wrapper",
+  name: "iframeWrapper",
   group: "block",
   content: "embedMedia",
 
@@ -198,13 +198,13 @@ const IframeWrapper = Node.create({
         },
       },
       {
-        tag: `[data-type="iframe-wrapper"]`,
+        tag: `[data-type="iframeWrapper"]`,
         priority: 100,
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["p", mergeAttributes(HTMLAttributes, { "data-type": "iframe-wrapper" }), 0];
+    return ["p", mergeAttributes(HTMLAttributes, { "data-type": "iframeWrapper" }), 0];
   },
 });

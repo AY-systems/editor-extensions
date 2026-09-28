@@ -13,7 +13,7 @@ describe("Picture", () => {
       type: "picture",
       content: [
         { type: "source", attrs: { srcset: "large.webp", media: "screen" } },
-        { type: "inline-image", attrs: { src: "image.webp", alt: "sample" } },
+        { type: "inlineImage", attrs: { src: "image.webp", alt: "sample" } },
       ],
     });
     expect(editor.getHTML()).toContain('<picture data-type="picture">');
@@ -28,7 +28,7 @@ describe("Picture", () => {
     expect(editor.commands.imageToPicture()).toBe(true);
     expect(editor.getJSON().content?.[0]).toMatchObject({
       type: "picture",
-      content: [{ type: "inline-image", attrs: { src: "image.webp", alt: "sample" } }],
+      content: [{ type: "inlineImage", attrs: { src: "image.webp", alt: "sample" } }],
     });
 
     destroyEditor(editor);
@@ -39,11 +39,7 @@ describe("Picture", () => {
 
     editor.commands.setNodeSelection(1);
     expect(
-      editor
-        .chain()
-        .imageToPicture()
-        .setSource({ srcset: "small.webp", media: "screen" })
-        .run(),
+      editor.chain().imageToPicture().setSource({ srcset: "small.webp", media: "screen" }).run(),
     ).toBe(true);
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "source",
@@ -90,7 +86,7 @@ describe("Picture", () => {
     expect(editor.commands.imageToPicture()).toBe(true);
     expect(editor.getJSON().content).toMatchObject([
       { type: "paragraph", content: [{ type: "text", text: "text" }] },
-      { type: "picture", content: [{ type: "inline-image", attrs: { src: "image.webp" } }] },
+      { type: "picture", content: [{ type: "inlineImage", attrs: { src: "image.webp" } }] },
       { type: "paragraph", content: [{ type: "text", text: "after" }] },
     ]);
 
@@ -106,7 +102,7 @@ describe("Picture", () => {
     expect(editor.commands.pictureToImage()).toBe(true);
     expect(editor.getJSON().content?.[0].type).toBe("paragraph");
     expect(editor.getJSON().content?.[0].content).toMatchObject([
-      { type: "inline-image", attrs: { src: "image.webp" } },
+      { type: "inlineImage", attrs: { src: "image.webp" } },
     ]);
     // picture専用のsourceノードは、imgへの解除時に消滅する
     expect(editor.getHTML()).not.toContain("<source");

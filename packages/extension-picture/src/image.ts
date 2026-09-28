@@ -5,10 +5,10 @@ type ImageAttributes = Record<string, unknown>;
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    "inline-image": {
+    inlineImage: {
       setInlineImage: (attrs: ImageAttributes) => ReturnType;
     };
-    "block-image": {
+    blockImage: {
       setBlockImage: (attrs: ImageAttributes) => ReturnType;
     };
   }
@@ -116,12 +116,12 @@ const BaseImage = Image.extend({
 });
 
 export const BlockImage = BaseImage.extend({
-  name: "block-image",
+  name: "blockImage",
   inline: false,
   group: "block",
 
   parseHTML() {
-    return [{ tag: 'img[data-type="block-image"]' }];
+    return [{ tag: 'img[data-type="blockImage"]' }];
   },
 
   addCommands() {
@@ -139,12 +139,15 @@ export const BlockImage = BaseImage.extend({
 });
 
 export const InlineImage = BaseImage.extend({
-  name: "inline-image",
+  name: "inlineImage",
   inline: true,
   group: "inline",
 
   parseHTML() {
-    return [{ tag: 'img[data-type="inline-image"]' }, { tag: "img:not([data-type])" }];
+    return [
+      { tag: 'img[data-type="inlineImage"]' },
+      { tag: "img:not([data-type])" },
+    ];
   },
 
   addCommands() {
@@ -153,10 +156,7 @@ export const InlineImage = BaseImage.extend({
         (attrs: ImageAttributes) =>
         ({ chain, state }) => {
           const position = state.selection.from;
-          return chain()
-            .insertContent({ type: this.name, attrs })
-            .setNodeSelection(position)
-            .run();
+          return chain().insertContent({ type: this.name, attrs }).setNodeSelection(position).run();
         },
     };
   },

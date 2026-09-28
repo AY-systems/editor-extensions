@@ -45,7 +45,7 @@ export const Picture = Node.create<PictureOptions>({
         ({ editor, tr }) => {
           const { selection } = tr;
           const image = selection instanceof NodeSelection ? selection.node : null;
-          if (!image || image.type.name !== "inline-image") return false;
+          if (!image || image.type.name !== "inlineImage") return false;
 
           const $from = selection.$from;
           const parent = $from.parent;
@@ -94,7 +94,7 @@ export const PictureKit = Extension.create({
               return true;
             }
 
-            if (selection.node.type.name !== "inline-image") return false;
+            if (selection.node.type.name !== "inlineImage") return false;
 
             let pictureDepth = -1;
             for (let depth = selection.$from.depth; depth > 0; depth -= 1) {

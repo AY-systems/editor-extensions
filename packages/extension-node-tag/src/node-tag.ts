@@ -2,6 +2,11 @@ import { Decoration, Extension } from "@tiptap/core";
 
 const NODE_TAG_VISIBILITY_META = "nodeTagVisibility";
 
+type NodeTagStorage = {
+  style?: HTMLStyleElement;
+  visible: boolean;
+};
+
 export interface NodeTagOptions {
   ignoreNodeTypes: string[];
 }
@@ -13,6 +18,9 @@ declare module "@tiptap/core" {
       hideNodeTag: () => ReturnType;
       toggleNodeTag: () => ReturnType;
     };
+  }
+  interface Storage {
+    nodeTag: NodeTagStorage;
   }
 }
 
@@ -36,11 +44,11 @@ const nodeTagStyle = `
 }
 `;
 
-export const NodeTag = Extension.create<NodeTagOptions>({
-  name: "node-tag",
+export const NodeTag = Extension.create<NodeTagOptions, NodeTagStorage>({
+  name: "nodeTag",
   addStorage() {
     return {
-      style: undefined as HTMLStyleElement | undefined,
+      style: undefined,
       visible: true,
     };
   },
