@@ -153,10 +153,7 @@ export const InlineImage = BaseImage.extend({
         (attrs: ImageAttributes) =>
         ({ chain, state }) => {
           const position = state.selection.from;
-          return chain()
-            .insertContent({ type: this.name, attrs })
-            .setNodeSelection(position)
-            .run();
+          return chain().insertContent({ type: this.name, attrs }).setNodeSelection(position).run();
         },
     };
   },

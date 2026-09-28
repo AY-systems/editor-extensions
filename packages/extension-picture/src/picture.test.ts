@@ -39,11 +39,7 @@ describe("Picture", () => {
 
     editor.commands.setNodeSelection(1);
     expect(
-      editor
-        .chain()
-        .imageToPicture()
-        .setSource({ srcset: "small.webp", media: "screen" })
-        .run(),
+      editor.chain().imageToPicture().setSource({ srcset: "small.webp", media: "screen" }).run(),
     ).toBe(true);
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "source",
