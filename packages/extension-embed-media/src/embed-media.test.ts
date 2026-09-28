@@ -17,7 +17,7 @@ describe("EmbedMedia", () => {
     ).toBe(true);
 
     const paragraph = editor.getJSON().content?.[0];
-    expect(paragraph?.type).toBe("iframe-wrapper");
+    expect(paragraph?.type).toBe("iframeWrapper");
     expect(paragraph?.content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: {
@@ -71,7 +71,7 @@ describe("EmbedMedia", () => {
       '<p><iframe src="about:blank" width="640" height="360" style="aspect-ratio: 16 / 9; max-width: 100%;"></iframe></p>',
     );
 
-    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframeWrapper" });
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: {
@@ -92,7 +92,7 @@ describe("EmbedMedia", () => {
       '<p><iframe src="about:blank" width="640" height="360"></iframe></p>',
     );
 
-    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframeWrapper" });
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: { src: "about:blank", width: "640", height: "360" },
@@ -107,7 +107,7 @@ describe("EmbedMedia", () => {
       '<div><iframe src="about:blank" width="640" height="360"></iframe></div>',
     );
 
-    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframe-wrapper" });
+    expect(editor.getJSON().content?.[0]).toMatchObject({ type: "iframeWrapper" });
     expect(editor.getJSON().content?.[0].content?.[0]).toMatchObject({
       type: "embedMedia",
       attrs: { src: "about:blank", width: "640", height: "360" },
@@ -127,7 +127,7 @@ describe("EmbedMedia", () => {
     });
 
     const iframe = element.querySelector("iframe");
-    expect(element.querySelector("p")?.getAttribute("data-type")).toBe("iframe-wrapper");
+    expect(element.querySelector("p")?.getAttribute("data-type")).toBe("iframeWrapper");
     expect(iframe?.getAttribute("src")).toBe("about:blank");
     expect(iframe?.getAttribute("width")).toBe("640");
     expect(iframe?.getAttribute("height")).toBe("360");
