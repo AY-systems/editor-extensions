@@ -1,10 +1,12 @@
 import { mergeAttributes } from "@tiptap/core";
-import { Div } from "./div";
+import { Div, type DivOptions } from "./div";
 import { getStyle, renderStyleAttribute } from "./utils";
 
-type GridOptions = {
-  HTMLAttributes: Record<string, any>;
-  style: Record<string, any>;
+const validateColumns = (value: number, maxColumns: number): number | null =>
+  Number.isInteger(value) && value > 0 ? Math.min(value, maxColumns) : null;
+
+type GridOptions = Partial<DivOptions> & {
+  maxColumns: number;
 };
 
 declare module "@tiptap/core" {
@@ -18,6 +20,13 @@ declare module "@tiptap/core" {
 
 export const Grid = Div.extend<GridOptions>({
   name: "grid",
+  addOptions() {
+    return {
+      ...this.parent?.(),
+      maxColumns: 12,
+    };
+  },
+
   parseHTML() {
     return [{ tag: `div[data-type="${this.name}"]`, priority: 100 }];
   },
@@ -25,7 +34,7 @@ export const Grid = Div.extend<GridOptions>({
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes(this.options.HTMLAttributes, this.options.style, HTMLAttributes, {
+      mergeAttributes(this.options.HTMLAttributes ?? {}, this.options.style ?? {}, HTMLAttributes, {
         "data-type": this.name,
       }),
       0,
@@ -45,25 +54,27 @@ export const Grid = Div.extend<GridOptions>({
           if (value === null) return null;
 
           const cols = Number(value);
-          return Number.isInteger(cols) && cols > 0 ? cols : null;
+          return validateColumns(cols, this.options.maxColumns);
         },
         renderHTML: ({ cols, gap, responsive }) => {
-          if (!cols) return;
+          const safeCols =
+            typeof cols === "number" ? validateColumns(cols, this.options.maxColumns) : null;
+          if (!safeCols) return;
 
-          if (responsive && typeof cols === "number") {
-            const gaps = Array.from({ length: cols - 1 }, () => gap || "0px");
+          if (responsive) {
+            const gaps = Array.from({ length: safeCols - 1 }, () => gap || "0px");
             const availableWidth = ["100%", ...gaps.map((value) => `- ${value}`)].join(" ");
             return {
-              cols,
+              cols: safeCols,
               ...renderStyleAttribute(
                 "grid-template-columns",
-                `repeat(auto-fit, minmax(min(100%, max(200px, calc((${availableWidth}) / ${cols}))), 1fr))`,
+                `repeat(auto-fit, minmax(min(100%, max(200px, calc((${availableWidth}) / ${safeCols}))), 1fr))`,
               ),
             };
           }
-          const columns = typeof cols === "number" ? `repeat(${cols}, 1fr)` : cols;
+          const columns = `repeat(${safeCols}, 1fr)`;
           return {
-            cols,
+            cols: safeCols,
             ...renderStyleAttribute("grid-template-columns", columns),
           };
         },
@@ -86,21 +97,21 @@ export const Grid = Div.extend<GridOptions>({
   addCommands() {
     return {
       createGrid:
-        (cols?: number, gap?: string, responsive?: boolean) =>
+        (cols, gap, responsive) =>
         ({ chain }) => {
           const param = {
-            cols: cols,
+            cols: cols === undefined ? undefined : validateColumns(cols, this.options.maxColumns),
             gap: gap,
             responsive,
           };
           return chain().wrapIn(this.name, param).run();
         },
       updateGrid:
-        (cols?: number, gap?: string, responsive?: boolean) =>
+        (cols, gap, responsive) =>
         ({ chain }) => {
           const param: Record<string, unknown> = {};
 
-          if (cols !== undefined) param.cols = cols;
+          if (cols !== undefined) param.cols = validateColumns(cols, this.options.maxColumns);
           if (gap !== undefined) param.gap = gap;
           if (responsive !== undefined) param.responsive = responsive;
 

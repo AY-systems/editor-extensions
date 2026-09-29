@@ -48,4 +48,38 @@ describe("Grid", () => {
 
     destroyEditor(editor);
   });
+
+  it("列数を上限以内に制限する", () => {
+    const { editor } = createEditor([Grid]);
+
+    expect(editor.commands.createGrid(13, "1rem", true)).toBe(true);
+    expect(editor.getAttributes("grid").cols).toBe(12);
+    expect(editor.getHTML()).toContain('cols="12"');
+
+    editor.commands.updateGrid(13);
+    expect(editor.getAttributes("grid").cols).toBe(12);
+
+    editor.commands.setContent(
+      '<div data-type="grid" cols="13" responsive="true"><p>テスト</p></div>',
+    );
+    expect(editor.getAttributes("grid").cols).toBe(12);
+    expect(editor.getHTML()).toContain('cols="12"');
+
+    destroyEditor(editor);
+  });
+
+  it("maxColumnsオプションで列数の上限を変更できる", () => {
+    const { editor } = createEditor([Grid.configure({ maxColumns: 5 })]);
+
+    expect(editor.commands.createGrid(6, "1rem", true)).toBe(true);
+    expect(editor.getAttributes("grid").cols).toBe(5);
+    expect(editor.getHTML()).toContain('cols="5"');
+
+    editor.commands.setContent(
+      '<div data-type="grid" cols="6" responsive="true"><p>テスト</p></div>',
+    );
+    expect(editor.getAttributes("grid").cols).toBe(5);
+
+    destroyEditor(editor);
+  });
 });
