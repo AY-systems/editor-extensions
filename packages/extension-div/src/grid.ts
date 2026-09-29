@@ -2,14 +2,6 @@ import { mergeAttributes } from "@tiptap/core";
 import { Div, type DivOptions } from "./div";
 import { getStyle, renderStyleAttribute } from "./utils";
 
-const DEFAULT_MAX_COLUMNS = 12;
-
-const normalizeMaxColumns = (maxColumns: number): number =>
-  Number.isInteger(maxColumns) && maxColumns > 0 ? maxColumns : DEFAULT_MAX_COLUMNS;
-
-const validateColumns = (value: number, maxColumns: number): number | null =>
-  Number.isInteger(value) && value > 0 ? Math.min(value, normalizeMaxColumns(maxColumns)) : null;
-
 type GridOptions = Partial<DivOptions> & {
   maxColumns: number;
 };
@@ -28,7 +20,7 @@ export const Grid = Div.extend<GridOptions>({
   addOptions() {
     return {
       ...this.parent?.(),
-      maxColumns: DEFAULT_MAX_COLUMNS,
+      maxColumns: 12,
     };
   },
 
@@ -54,32 +46,22 @@ export const Grid = Div.extend<GridOptions>({
       },
       cols: {
         default: 2,
-        parseHTML: (element) => {
-          const value = element.getAttribute("cols");
-          if (value === null) return null;
-
-          const cols = Number(value);
-          return validateColumns(cols, this.options.maxColumns);
-        },
+        parseHTML: (element) => element.getAttribute("cols"),
         renderHTML: ({ cols, gap, responsive }) => {
-          const safeCols =
-            typeof cols === "number" ? validateColumns(cols, this.options.maxColumns) : null;
-          if (!safeCols) return;
-
           if (responsive) {
-            const gaps = Array.from({ length: safeCols - 1 }, () => gap || "0px");
+            const gaps = Array.from({ length: Number(cols) - 1 }, () => gap || "0px");
             const availableWidth = ["100%", ...gaps.map((value) => `- ${value}`)].join(" ");
             return {
-              cols: safeCols,
+              cols: cols,
               ...renderStyleAttribute(
                 "grid-template-columns",
-                `repeat(auto-fit, minmax(min(100%, max(200px, calc((${availableWidth}) / ${safeCols}))), 1fr))`,
+                `repeat(auto-fit, minmax(min(100%, max(200px, calc((${availableWidth}) / ${cols}))), 1fr))`,
               ),
             };
           }
-          const columns = `repeat(${safeCols}, 1fr)`;
+          const columns = `repeat(${cols}, 1fr)`;
           return {
-            cols: safeCols,
+            cols: cols,
             ...renderStyleAttribute("grid-template-columns", columns),
           };
         },
@@ -104,8 +86,10 @@ export const Grid = Div.extend<GridOptions>({
       createGrid:
         (cols, gap, responsive) =>
         ({ chain }) => {
+          cols ??= 2;
+          if (!Number.isInteger(cols) || cols < 1 || this.options.maxColumns < cols) return false;
           const param = {
-            cols: cols === undefined ? undefined : validateColumns(cols, this.options.maxColumns),
+            cols,
             gap: gap,
             responsive,
           };
@@ -114,9 +98,16 @@ export const Grid = Div.extend<GridOptions>({
       updateGrid:
         (cols, gap, responsive) =>
         ({ chain }) => {
+          if (
+            cols !== undefined &&
+            (!Number.isInteger(cols) || cols < 1 || this.options.maxColumns < cols)
+          ) {
+            return false;
+          }
+
           const param: Record<string, unknown> = {};
 
-          if (cols !== undefined) param.cols = validateColumns(cols, this.options.maxColumns);
+          if (cols !== undefined) param.cols = cols;
           if (gap !== undefined) param.gap = gap;
           if (responsive !== undefined) param.responsive = responsive;
 
