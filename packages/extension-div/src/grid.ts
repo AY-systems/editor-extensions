@@ -10,8 +10,8 @@ type GridOptions = {
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     grid: {
-      createGrid: (cols?: number, gap?: string, isResponsive?: boolean) => ReturnType;
-      updateGrid: (cols?: number, gap?: string, isResponsive?: boolean) => ReturnType;
+      createGrid: (cols?: number, gap?: string, responsive?: boolean) => ReturnType;
+      updateGrid: (cols?: number, gap?: string, responsive?: boolean) => ReturnType;
     };
   }
 }
@@ -38,13 +38,34 @@ export const Grid = Div.extend<GridOptions>({
         parseHTML: (element) => getStyle(element, "display", "display"),
         renderHTML: ({ display }) => renderStyleAttribute("display", display),
       },
-      gridCols: {
-        default: "",
-        parseHTML: (element) => getStyle(element, "grid-template-columns", "gridCols"),
-        renderHTML: ({ gridCols }) => {
-          if (!gridCols) return;
-          const columns = typeof gridCols === "number" ? `repeat(${gridCols}, 1fr)` : gridCols;
-          return renderStyleAttribute("grid-template-columns", columns);
+      cols: {
+        default: 2,
+        parseHTML: (element) => {
+          const value = element.getAttribute("cols");
+          if (value === null) return null;
+
+          const cols = Number(value);
+          return Number.isInteger(cols) && cols > 0 ? cols : null;
+        },
+        renderHTML: ({ cols, gap, responsive }) => {
+          if (!cols) return;
+
+          if (responsive && typeof cols === "number") {
+            const gaps = Array.from({ length: cols - 1 }, () => gap || "0px");
+            const availableWidth = ["100%", ...gaps.map((value) => `- ${value}`)].join(" ");
+            return {
+              cols,
+              ...renderStyleAttribute(
+                "grid-template-columns",
+                `repeat(auto-fit, minmax(min(100%, max(200px, calc((${availableWidth}) / ${cols}))), 1fr))`,
+              ),
+            };
+          }
+          const columns = typeof cols === "number" ? `repeat(${cols}, 1fr)` : cols;
+          return {
+            cols,
+            ...renderStyleAttribute("grid-template-columns", columns),
+          };
         },
       },
       gap: {
@@ -52,13 +73,11 @@ export const Grid = Div.extend<GridOptions>({
         parseHTML: (element) => getStyle(element, "gap", "gap"),
         renderHTML: ({ gap }) => renderStyleAttribute("gap", gap),
       },
-      isResponsive: {
-        default: "",
-        parseHTML: (element) =>
-          element.getAttribute("isResponsive") || element.classList.contains("grid-responsive"),
-        renderHTML: ({ isResponsive }) => {
-          if (!isResponsive) return;
-          return { class: "grid-responsive" };
+      responsive: {
+        default: false,
+        parseHTML: (element) => element.getAttribute("responsive"),
+        renderHTML: ({ responsive }) => {
+          if (responsive) return { responsive: true };
         },
       },
     };
@@ -67,24 +86,23 @@ export const Grid = Div.extend<GridOptions>({
   addCommands() {
     return {
       createGrid:
-        (cols?: number, gap?: string, isResponsive?: boolean) =>
+        (cols?: number, gap?: string, responsive?: boolean) =>
         ({ chain }) => {
           const param = {
-            display: "grid",
-            gridCols: cols ?? 2,
-            gap: gap ?? "",
-            isResponsive,
+            cols: cols,
+            gap: gap,
+            responsive,
           };
           return chain().wrapIn(this.name, param).run();
         },
       updateGrid:
-        (cols?: number, gap?: string, isResponsive?: boolean) =>
+        (cols?: number, gap?: string, responsive?: boolean) =>
         ({ chain }) => {
           const param: Record<string, unknown> = {};
 
-          if (cols !== undefined) param.gridCols = cols;
+          if (cols !== undefined) param.cols = cols;
           if (gap !== undefined) param.gap = gap;
-          if (isResponsive !== undefined) param.isResponsive = isResponsive;
+          if (responsive !== undefined) param.responsive = responsive;
 
           return chain().updateAttributes(this.name, param).run();
         },
