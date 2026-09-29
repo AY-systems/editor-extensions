@@ -1,5 +1,5 @@
 import type { Editor } from "@tiptap/core";
-import { Extension } from "@tiptap/core";
+import { Decoration, Extension } from "@tiptap/core";
 import { NodeSelection } from "@tiptap/pm/state";
 
 export interface AnchorLinkOptions {
@@ -19,8 +19,8 @@ const ANCHOR_LINK_STYLES = `
 *[data-type="anchor_link"] {
   position: relative;
 }
-*[data-type="anchor_link"]::after {
-  content: "#" attr(id);
+[data-anchor-link-name] {
+  display: inline-block;
   position: absolute;
   z-index: 1;
   top: -0.5rem;
@@ -77,6 +77,36 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
   },
   addStorage() {
     return { style: undefined as HTMLStyleElement | undefined };
+  },
+  addDecorations() {
+    return {
+      shouldUpdate: ({ tr }) => tr.docChanged,
+      create: ({ state }) => {
+        const decorations: Decoration[] = [];
+
+        state.doc.descendants((node, position) => {
+          const anchorLink = node.attrs.anchorLink;
+          if (typeof anchorLink !== "string" || anchorLink === "") return true;
+
+          decorations.push(
+            Decoration.Widget(
+              position + 1,
+              () => {
+                const label = document.createElement("span");
+                label.setAttribute("data-anchor-link-name", "");
+                label.textContent = `#${anchorLink}`;
+                label.contentEditable = "false";
+                return label;
+              },
+              { side: -1, key: `anchor-link-${position}-${anchorLink}` },
+            ),
+          );
+          return false;
+        });
+
+        return decorations;
+      },
+    };
   },
   onCreate() {
     if (typeof document === "undefined") return;
