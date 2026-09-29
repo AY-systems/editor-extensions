@@ -2,8 +2,13 @@ import { mergeAttributes } from "@tiptap/core";
 import { Div, type DivOptions } from "./div";
 import { getStyle, renderStyleAttribute } from "./utils";
 
+const DEFAULT_MAX_COLUMNS = 12;
+
+const normalizeMaxColumns = (maxColumns: number): number =>
+  Number.isInteger(maxColumns) && maxColumns > 0 ? maxColumns : DEFAULT_MAX_COLUMNS;
+
 const validateColumns = (value: number, maxColumns: number): number | null =>
-  Number.isInteger(value) && value > 0 ? Math.min(value, maxColumns) : null;
+  Number.isInteger(value) && value > 0 ? Math.min(value, normalizeMaxColumns(maxColumns)) : null;
 
 type GridOptions = Partial<DivOptions> & {
   maxColumns: number;
@@ -23,7 +28,7 @@ export const Grid = Div.extend<GridOptions>({
   addOptions() {
     return {
       ...this.parent?.(),
-      maxColumns: 12,
+      maxColumns: DEFAULT_MAX_COLUMNS,
     };
   },
 

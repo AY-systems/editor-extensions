@@ -85,4 +85,13 @@ describe("Grid", () => {
 
     destroyEditor(editor);
   });
+
+  it.each([2.5, Number.NaN, 0, -1])("無効なmaxColumns %s は既定値を使う", (maxColumns) => {
+    const { editor } = createEditor([Grid.configure({ maxColumns })]);
+
+    expect(editor.commands.createGrid(13)).toBe(true);
+    expect(editor.getAttributes("grid").cols).toBe(12);
+
+    destroyEditor(editor);
+  });
 });
