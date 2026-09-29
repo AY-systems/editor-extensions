@@ -34,7 +34,10 @@ describe("Grid", () => {
 
     editor.commands.setContent(editor.getHTML());
 
-    expect(editor.getJSON().content?.find(({ type }) => type === "grid")?.attrs?.cols).toBe(3);
+    const reloadedGrid = editor.getJSON().content?.find(({ type }) => type === "grid");
+    expect(reloadedGrid?.attrs?.cols).toBe(3);
+    expect(reloadedGrid?.attrs?.responsive).toBe(true);
+    expect(typeof reloadedGrid?.attrs?.responsive).toBe("boolean");
     expect(editor.getHTML()).toContain(responsiveColumns);
 
     destroyEditor(editor);

@@ -86,7 +86,7 @@ export const Grid = Div.extend<GridOptions>({
       },
       responsive: {
         default: false,
-        parseHTML: (element) => element.getAttribute("responsive"),
+        parseHTML: (element) => element.getAttribute("responsive") === "true",
         renderHTML: ({ responsive }) => {
           if (responsive) return { responsive: true };
         },
