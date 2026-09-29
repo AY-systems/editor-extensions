@@ -45,8 +45,11 @@ export const Grid = Div.extend<GridOptions>({
         renderHTML: ({ display }) => renderStyleAttribute("display", display),
       },
       cols: {
-        default: 2,
-        parseHTML: (element) => element.getAttribute("cols"),
+        default: null,
+        parseHTML: (element) => {
+          const cols = element.getAttribute("cols");
+          return cols === null ? null : Number(cols);
+        },
         renderHTML: ({ cols, gap, responsive }) => {
           if (responsive) {
             const gaps = Array.from({ length: Number(cols) - 1 }, () => gap || "0px");
