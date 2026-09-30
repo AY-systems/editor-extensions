@@ -79,6 +79,28 @@ describe("AnchorLink", () => {
     destroyEditor(editor);
   });
 
+  it("ネスト内で改行しても親ノードのアンカーを維持する", () => {
+    const anchorLink = AnchorLink.configure({ types: ["heading", "paragraph", "blockquote"] });
+    const { editor } = createEditor(
+      [anchorLink],
+      '<blockquote id="section" data-type="anchor_link"><p>入れ子の文章</p></blockquote>',
+    );
+
+    editor.commands.focus();
+    editor.commands.setTextSelection(5);
+    editor.view.dom.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+    );
+
+    const blockquote = editor.state.doc.firstChild;
+    expect(blockquote?.attrs.anchorLink).toBe("section");
+    expect(blockquote?.childCount).toBe(2);
+    expect(blockquote?.child(0).attrs.anchorLink).toBe("");
+    expect(blockquote?.child(1).attrs.anchorLink).toBe("");
+
+    destroyEditor(editor);
+  });
+
   it("別ノードに設定済みのアンカー名は拒否する", () => {
     const { editor } = createEditor(
       [AnchorLink],
