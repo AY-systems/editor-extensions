@@ -1,6 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import { Decoration, Extension } from "@tiptap/core";
-import { NodeSelection } from "@tiptap/pm/state";
+import { TextSelection } from "@tiptap/pm/state";
 
 export interface AnchorLinkOptions {
   types: string[];
@@ -34,33 +34,21 @@ const ANCHOR_LINK_STYLES = `
 }
 `;
 
-// 有効な対象のノード名を取得
-function getActiveNodeType(editor: Editor, types: string[], requireAnchor = true) {
-  let node_type = "";
-  types.some((type) => {
-    if (editor.isActive(type) && (!requireAnchor || editor.getAttributes(type).anchorLink)) {
-      node_type = type;
-      return true;
-    }
-    return false;
-  });
-
-  return node_type;
-}
-
-function hasDuplicateAnchor(editor: Editor, type: string, name: string) {
+function hasDuplicateAnchor(editor: Editor, name: string, types: string[]) {
   if (!name) return false;
 
-  const activeNode =
-    editor.state.selection instanceof NodeSelection
-      ? editor.state.selection.node
-      : editor.state.selection.$from.parent;
   let duplicate = false;
   editor.state.doc.descendants((node) => {
-    if (node !== activeNode && node.type.name === type && node.attrs.anchorLink === name) {
+    if (!types.includes(node.type.name)) return true;
+
+    const anchorLink = node.attrs.anchorLink;
+    if (typeof anchorLink !== "string" || anchorLink === "") return true;
+
+    if (anchorLink === name) {
       duplicate = true;
       return false;
     }
+
     return true;
   });
 
@@ -72,7 +60,7 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
   addOptions() {
     return {
       // 対象のノード
-      types: ["heading", "paragraph"],
+      types: ["heading", "paragraph", "div"],
     };
   },
   addStorage() {
@@ -84,9 +72,9 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
       create: ({ state }) => {
         const decorations: Decoration[] = [];
 
-        state.doc.descendants((node, position) => {
+        state.doc.forEach((node, position) => {
           const anchorLink = node.attrs.anchorLink;
-          if (typeof anchorLink !== "string" || anchorLink === "") return true;
+          if (typeof anchorLink !== "string" || anchorLink === "") return;
 
           decorations.push(
             Decoration.Widget(
@@ -101,7 +89,6 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
               { side: -1, key: `anchor-link-${position}-${anchorLink}` },
             ),
           );
-          return false;
         });
 
         return decorations;
@@ -148,16 +135,24 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
       // アンカーidを付ける
       setAnchorLink:
         (name: string) =>
-        ({ editor, chain }) => {
-          const node_type = getActiveNodeType(editor, this.options.types, false);
-
-          // 有効なnodeがない場合何もしない
-          if (!node_type) return false;
-          if (hasDuplicateAnchor(editor, node_type, name)) return false;
-
+        ({ editor, tr, chain }) => {
+          // 変更前にすでに同一アンカー名が存在している場合失敗
+          if (hasDuplicateAnchor(editor, name, this.options.types)) return false;
           return chain()
             .focus()
-            .updateAttributes(node_type, {
+            .command(({ tr }) => {
+              const { $anchor } = tr.selection;
+              if (1 < $anchor.depth) {
+                tr.setSelection(TextSelection.create(tr.doc, $anchor.before(1) + 1));
+              }
+
+              const node = tr.selection.$anchor.node();
+
+              if (!this.options.types.includes(node.type.name)) return false;
+
+              return true;
+            })
+            .updateAttributes(tr.selection.$anchor.node().type.name, {
               anchorLink: name,
             })
             .run();
@@ -166,15 +161,23 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
       // アンカーの解除
       unsetAnchorLink:
         () =>
-        ({ editor, chain }) => {
-          const node_type = getActiveNodeType(editor, this.options.types);
-
-          // 有効なnodeがない場合何もしない
-          if (!node_type) return false;
-
+        ({ chain, tr }) => {
           return chain()
             .focus()
-            .updateAttributes(node_type, {
+            .command(({ tr }) => {
+              const { $anchor } = tr.selection;
+              if (1 < $anchor.depth) {
+                tr.setSelection(TextSelection.create(tr.doc, $anchor.before(1) + 1));
+              }
+
+              const node = tr.selection.$anchor.node();
+              if (!this.options.types.includes(node.type.name) || !node.attrs.anchorLink) {
+                return false;
+              }
+
+              return true;
+            })
+            .updateAttributes(tr.selection.$anchor.node().type.name, {
               anchorLink: "",
             })
             .run();
@@ -186,13 +189,14 @@ export const AnchorLink = Extension.create<AnchorLinkOptions>({
     return {
       // アンカー内でのEnterでの改行はattributeを引き継がない
       Enter: ({ editor }) => {
-        const node_type = getActiveNodeType(editor, this.options.types);
-
-        // 有効なnodeがない場合何もしない
-        if (!node_type) return false;
+        const { $anchor } = editor.state.selection;
+        const node = $anchor.node();
+        if (!this.options.types.includes(node.type.name) || !node.attrs.anchorLink) {
+          return false;
+        }
 
         // 改行後 改行先のアンカーリンク解除
-        return this.editor.chain().focus().splitBlock().unsetAnchorLink().run();
+        return editor.chain().focus().splitBlock().unsetAnchorLink().run();
       },
     };
   },
