@@ -21,17 +21,4 @@
   div:not([data-type="grid"]) > *:not(:last-child) {
     margin-bottom: 1rem;
   }
-
-  colgroup,
-  col {
-    display: none;
-  }
-
-  p:has(> img[data-type="inlineImage"]),
-  picture,
-  [data-type="iframeWrapper"] {
-    display: flex;
-    width: fit-content;
-    height: fit-content;
-  }
 }
