@@ -55,7 +55,7 @@ export const InlineImage = BaseImage.extend({
   group: "inline",
 
   parseHTML() {
-    return [{ tag: 'img[data-type="inlineImage"]' }];
+    return [{ tag: 'img[data-type="inlineImage"]' }, { tag: "img:not([data-type])" }];
   },
 
   renderHTML({ HTMLAttributes }) {
