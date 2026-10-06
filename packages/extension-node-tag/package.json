@@ -6,7 +6,7 @@
   "author": "AY-systems",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aysys/editor-extensions.git",
+    "url": "https://github.com/AY-systems/editor-extensions.git",
     "directory": "packages/extension-node-tag"
   },
   "files": [
