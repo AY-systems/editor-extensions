@@ -28,6 +28,7 @@
   },
   "peerDependencies": {
     "@tiptap/core": "catalog:",
+    "@tiptap/extension-table": "catalog:",
     "@tiptap/pm": "catalog:"
   }
 }
