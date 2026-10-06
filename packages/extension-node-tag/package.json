@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-node-tag",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap エディタ上にノード名ラベルを表示する拡張機能",
   "license": "MIT",
   "author": "AY-systems",

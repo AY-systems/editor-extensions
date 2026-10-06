@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-embed-media",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap に iframe による外部メディア埋め込みを追加する拡張機能",
   "license": "MIT",
   "author": "AY-systems",
