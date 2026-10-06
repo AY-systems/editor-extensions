@@ -1,7 +1,18 @@
 {
   "name": "@aysys/extension-picture",
   "version": "1.0.0",
-  "description": "",
+  "description": "Tiptap にインライン画像とレスポンシブ画像を追加する拡張機能",
+  "license": "MIT",
+  "author": "AY-systems",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aysys/editor-extensions.git",
+    "directory": "packages/extension-picture"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
