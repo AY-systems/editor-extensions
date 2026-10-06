@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-div",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap に div、レスポンシブグリッド、sticky ノードを追加する拡張機能",
   "license": "MIT",
   "author": "AY-systems",

@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-picture",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap にインライン画像とレスポンシブ画像を追加する拡張機能",
   "license": "MIT",
   "author": "AY-systems",

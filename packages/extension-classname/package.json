@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-classname",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap のノードやマークに CSS クラスを設定する拡張機能",
   "license": "MIT",
   "author": "AY-systems",

@@ -1,6 +1,6 @@
 {
   "name": "@aysys/extension-table",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Tiptap のテーブルにセル寸法や装飾、挿入コマンドを追加する拡張機能",
   "license": "MIT",
   "author": "AY-systems",
