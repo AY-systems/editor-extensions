@@ -22,7 +22,7 @@ export interface SourceOptions {
   HTMLAttributes: Record<string, any>;
 }
 
-// 画像レスポンシブ設定　サイズ指定
+// 画像レスポンシブ設定 サイズ指定
 export const Source = Node.create<SourceOptions>({
   name: "source",
   group: "source",
