@@ -207,13 +207,13 @@ async function plan() {
     return;
   }
 
+  if (changed.length !== targets.length)
+    fail("fixed対象の全パッケージのversionを同時に更新してください");
   for (const { name, oldVersion, newVersion } of versions) {
     const oldParts = validVersion(oldVersion, name);
     const newParts = validVersion(newVersion, name);
     if (compareVersions(newParts, oldParts) <= 0) fail(`${name} のversionは増加していません`);
   }
-  if (changed.length !== targets.length)
-    fail("fixed対象の全パッケージのversionを同時に更新してください");
   const oldVersions = new Set(versions.map(({ oldVersion }) => oldVersion));
   if (oldVersions.size !== 1) fail("fixed対象パッケージの旧versionが揃っていません");
   const newVersions = new Set(versions.map(({ newVersion }) => newVersion));
