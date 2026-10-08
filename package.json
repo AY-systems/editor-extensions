@@ -14,10 +14,10 @@
     "tag-packages": "node scripts/version-management/tags.mjs create"
   },
   "devDependencies": {
+    "@changesets/cli": "catalog:",
     "@tiptap/core": "catalog:",
     "@tiptap/pm": "catalog:",
     "@tiptap/starter-kit": "catalog:",
-    "@changesets/cli": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
