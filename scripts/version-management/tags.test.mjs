@@ -274,6 +274,21 @@ test("一部のパッケージだけの更新は失敗する", async (t) => {
   assert.equal(runGit(repo.directory, ["tag", "--list"]), "");
 });
 
+test("旧versionが揃っていないパッケージの更新は失敗する", async (t) => {
+  const repo = await fixture(t);
+  const manifestPath = path.join(repo.directory, "packages/extension-div/package.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.version = "0.1.1";
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  repo.finish("旧versionが不揃いな状態を作成");
+  await repo.setVersions(Object.fromEntries(targetPackages.map(([, folder]) => [folder, "0.1.2"])));
+  const sha = repo.finish();
+  const result = repo.invoke("plan", { env: { GITHUB_SHA: sha } });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /旧versionが揃っていません/);
+  assert.equal(runGit(repo.directory, ["tag", "--list"]), "");
+});
+
 test("4パッケージの更新versionが不揃いまたは不正なら失敗する", async (t) => {
   const repo = await fixture(t);
   await repo.setVersions({ "extension-picture": "0.1.2" });

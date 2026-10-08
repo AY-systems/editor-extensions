@@ -207,15 +207,17 @@ async function plan() {
     return;
   }
 
-  if (changed.length !== targets.length)
-    fail("fixed対象の全パッケージのversionを同時に更新してください");
-  const newVersions = new Set(versions.map(({ newVersion }) => newVersion));
-  if (newVersions.size !== 1) fail("fixed対象パッケージの新versionが揃っていません");
   for (const { name, oldVersion, newVersion } of versions) {
     const oldParts = validVersion(oldVersion, name);
     const newParts = validVersion(newVersion, name);
     if (compareVersions(newParts, oldParts) <= 0) fail(`${name} のversionは増加していません`);
   }
+  if (changed.length !== targets.length)
+    fail("fixed対象の全パッケージのversionを同時に更新してください");
+  const oldVersions = new Set(versions.map(({ oldVersion }) => oldVersion));
+  if (oldVersions.size !== 1) fail("fixed対象パッケージの旧versionが揃っていません");
+  const newVersions = new Set(versions.map(({ newVersion }) => newVersion));
+  if (newVersions.size !== 1) fail("fixed対象パッケージの新versionが揃っていません");
 
   const tag = `v${versions[0].newVersion}`;
   const existing = gitTry(["rev-parse", "--verify", `${tag}^{commit}`]);
