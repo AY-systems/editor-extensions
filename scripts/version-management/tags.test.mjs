@@ -463,6 +463,10 @@ test("同じSHAの軽量タグと注釈付きタグを再実行時に維持す�
     assert.equal(plan.status, 0, plan.stderr);
     assert.equal(repo.invoke("create").status, 0);
     assert.equal(repo.invoke("verify").status, 0);
+    // 既存タグを含む状態で計画からやり直しても検証に成功する。
+    assert.equal(repo.invoke("plan", { env: { GITHUB_SHA: sha } }).status, 0);
+    assert.equal(repo.invoke("create").status, 0);
+    assert.equal(repo.invoke("verify").status, 0);
     assert.equal(repo.invoke("push").status, 0);
     assert.equal(
       runGit(repo.bare, ["rev-parse", annotated ? "refs/tags/v0.1.1^{}" : "refs/tags/v0.1.1"]),

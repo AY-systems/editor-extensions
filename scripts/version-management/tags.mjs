@@ -269,7 +269,7 @@ async function verify() {
   if (tagCommit.status !== 0 || tagCommit.stdout.trim() !== planFile.sha)
     fail(`${planFile.tag} が対象SHAを指していません`);
   const expected = new Set(planFile.tagsBefore);
-  expected.add(planFile.tag);
+  if (!expected.has(planFile.tag)) expected.add(planFile.tag);
   const actual = currentTags();
   if (actual.length !== expected.size || actual.some((tag) => !expected.has(tag)))
     fail("タグ作成後に予定外のタグ変更を検出しました");
