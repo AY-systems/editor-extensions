@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cp, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -20,6 +20,7 @@ const privatePackages = [
   ["@aysys/extension-table", "extension-table"],
 ];
 
+// 指定したテスト用リポジトリでGitを実行し、失敗時はテストを中断する。
 function runGit(cwd, args) {
   return execFileSync("git", args, {
     cwd,
@@ -28,12 +29,14 @@ function runGit(cwd, args) {
   }).trim();
 }
 
+// テスト用リポジトリの全変更をコミットし、作成したコミットのSHAを返す。
 function commitAll(cwd, message) {
   runGit(cwd, ["add", "."]);
   runGit(cwd, ["commit", "-m", message]);
   return runGit(cwd, ["rev-parse", "HEAD"]);
 }
 
+// 一時ワークスペースとローカルのベアリモートを作成し、操作用関数と終了時の削除処理を用意する。
 async function fixture(t) {
   const directory = await mkdtemp(path.join(os.tmpdir(), "version-tags-"));
   const bare = `${directory}-remote.git`;
@@ -102,6 +105,7 @@ async function fixture(t) {
   runGit(directory, ["push", "-u", "origin", "master"]);
 
   const env = { ...process.env, RUNNER_TEMP: runnerTemp };
+  // テスト用の環境変数でタグ処理を実行し、終了コードと出力を検証用に返す。
   const invoke = (command, options = {}) => {
     const result = spawnSync(process.execPath, [scriptPath, command], {
       cwd: directory,
@@ -111,24 +115,46 @@ async function fixture(t) {
     });
     return { status: result.status, stdout: result.stdout, stderr: result.stderr };
   };
+  // 変更をコミットし、GitHub Actionsのイベント対象SHAもそのコミットに合わせる。
   const finish = (message = "version update") => {
     const sha = commitAll(directory, message);
     env.GITHUB_SHA = sha;
     return sha;
   };
+  // 現在のfixed対象だけを更新し、個別指定のないパッケージは0.1.1に揃える。
   const setVersions = async (versionByFolder) => {
-    for (const [, folder] of targetPackages) {
-      const manifestPath = path.join(directory, "packages", folder, "package.json");
-      const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-      manifest.version = versionByFolder[folder] ?? "0.1.1";
+    const config = JSON.parse(
+      await readFile(path.join(directory, ".changeset/config.json"), "utf8"),
+    );
+    const names = config.fixed.flat();
+    const entries = await readdir(path.join(directory, "packages"), { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const manifestPath = path.join(directory, "packages", entry.name, "package.json");
+      let manifest;
+      try {
+        manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+      } catch (error) {
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
+      if (!names.includes(manifest.name)) continue;
+      manifest.version = versionByFolder[entry.name] ?? "0.1.1";
       await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     }
+  };
+  // 対象の追加・除外を検証するため、fixed設定を指定した名前の単一グループに置き換える。
+  const setFixed = async (names) => {
+    const configPath = path.join(directory, ".changeset/config.json");
+    const config = JSON.parse(await readFile(configPath, "utf8"));
+    config.fixed = [names];
+    await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`);
   };
   t.after(async () => {
     await rm(directory, { recursive: true, force: true });
     await rm(bare, { recursive: true, force: true });
   });
-  return { directory, bare, base, env, invoke, finish, setVersions };
+  return { directory, bare, base, env, invoke, finish, setVersions, setFixed };
 }
 
 test("更新がないコミットはタグ計画を作らない", async (t) => {
@@ -244,7 +270,7 @@ test("一部のパッケージだけの更新は失敗する", async (t) => {
   const sha = repo.finish();
   const result = repo.invoke("plan", { env: { GITHUB_SHA: sha } });
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /4パッケージすべて/);
+  assert.match(result.stderr, /fixed対象の全パッケージ/);
   assert.equal(runGit(repo.directory, ["tag", "--list"]), "");
 });
 
@@ -266,7 +292,7 @@ test("4パッケージの更新versionが不揃いまたは不正なら失敗す
   assert.match(malformedResult.stderr, /major\.minor\.patch/);
 });
 
-test("対象のprivate化と非privateパッケージ追加は失敗する", async (t) => {
+test("fixed対象のprivate化とworkspaceにないパッケージの指定は失敗する", async (t) => {
   const repo = await fixture(t);
   const manifestPath = path.join(repo.directory, "packages/extension-div/package.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
@@ -275,18 +301,113 @@ test("対象のprivate化と非privateパッケージ追加は失敗する", asy
   const sha = repo.finish();
   const privateResult = repo.invoke("plan", { env: { GITHUB_SHA: sha } });
   assert.notEqual(privateResult.status, 0);
-  assert.match(privateResult.stderr, /非privateパッケージ/);
+  assert.match(privateResult.stderr, /fixed対象のパッケージはprivate/);
 
   const extra = await fixture(t);
-  await mkdir(path.join(extra.directory, "packages/extra"), { recursive: true });
-  await writeFile(
-    path.join(extra.directory, "packages/extra/package.json"),
-    JSON.stringify({ name: "@fixture/extra", version: "1.0.0" }),
-  );
+  await extra.setFixed([...targetPackages.map(([name]) => name), "@fixture/missing"]);
   const extraSha = extra.finish();
   const extraResult = extra.invoke("plan", { env: { GITHUB_SHA: extraSha } });
   assert.notEqual(extraResult.status, 0);
-  assert.match(extraResult.stderr, /非privateパッケージ/);
+  assert.match(extraResult.stderr, /fixed対象のパッケージがworkspaceにありません/);
+});
+
+test("fixed設定への追加と除外がタグ対象へ反映される", async (t) => {
+  const added = await fixture(t);
+  const addedPath = path.join(added.directory, "packages/extension-classname/package.json");
+  const addedManifest = JSON.parse(await readFile(addedPath, "utf8"));
+  addedManifest.private = false;
+  await writeFile(addedPath, `${JSON.stringify(addedManifest, null, 2)}\n`);
+  await added.setFixed([...targetPackages.map(([name]) => name), "@aysys/extension-classname"]);
+  await added.setVersions({});
+  const addedSha = added.finish();
+  const addedPlan = added.invoke("plan", { env: { GITHUB_SHA: addedSha } });
+  assert.equal(addedPlan.status, 0, addedPlan.stderr);
+  assert.equal(added.invoke("create").status, 0);
+  assert.equal(added.invoke("verify").status, 0);
+  assert.equal(runGit(added.directory, ["rev-parse", "v0.1.1^{commit}"]), addedSha);
+
+  const excluded = await fixture(t);
+  await excluded.setFixed(targetPackages.slice(0, -1).map(([name]) => name));
+  const excludedPath = path.join(excluded.directory, "packages/extension-picture/package.json");
+  const excludedManifest = JSON.parse(await readFile(excludedPath, "utf8"));
+  excludedManifest.version = "0.1.1";
+  await writeFile(excludedPath, `${JSON.stringify(excludedManifest, null, 2)}\n`);
+  const excludedSha = excluded.finish();
+  const excludedPlan = excluded.invoke("plan", { env: { GITHUB_SHA: excludedSha } });
+  assert.equal(excludedPlan.status, 0, excludedPlan.stderr);
+  assert.match(
+    await readFile(path.join(excluded.env.RUNNER_TEMP, "tag-plan.json"), "utf8"),
+    /"shouldTag": false/,
+  );
+});
+
+test("リリース後に非公開パッケージをfixedへ追加してもChangesetsの更新をタグ付けできる", async (t) => {
+  const repo = await fixture(t);
+  await repo.setVersions({});
+  repo.finish("既存対象をリリース");
+  const manifestPath = path.join(repo.directory, "packages/extension-classname/package.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.private = false;
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  await repo.setFixed([...targetPackages.map(([name]) => name), manifest.name]);
+  await writeFile(
+    path.join(repo.directory, ".changeset/patch.md"),
+    '---\n"@aysys/extension-div": patch\n---\n公開対象を追加\n',
+  );
+  repo.finish("公開対象とChangesetを追加");
+  const version = spawnSync(process.execPath, [changesetCli, "version"], {
+    cwd: repo.directory,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  assert.equal(version.status, 0, version.stderr);
+  const sha = repo.finish();
+  const plan = repo.invoke("plan");
+  assert.equal(plan.status, 0, plan.stderr);
+  assert.equal(repo.invoke("create").status, 0);
+  assert.equal(repo.invoke("verify").status, 0);
+  assert.equal(repo.invoke("push").status, 0);
+  assert.equal(runGit(repo.bare, ["rev-parse", "refs/tags/v0.1.2^{}"]), sha);
+});
+
+test("fixedへ追加したパッケージのバージョン降下や不正な旧versionは拒否する", async (t) => {
+  for (const oldVersion of ["0.2.0", "不正なバージョン"]) {
+    const repo = await fixture(t);
+    const manifestPath = path.join(repo.directory, "packages/extension-classname/package.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.version = oldVersion;
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    repo.finish("非公開パッケージの旧versionを設定");
+    manifest.private = false;
+    await writeFile(manifestPath, JSON.stringify(manifest));
+    await repo.setFixed([...targetPackages.map(([name]) => name), manifest.name]);
+    await repo.setVersions({});
+    repo.finish();
+    const plan = repo.invoke("plan");
+    assert.notEqual(plan.status, 0);
+    assert.match(plan.stderr, /@aysys\/extension-classname/);
+    assert.match(plan.stderr, /増加していません|major\.minor\.patch/);
+    assert.equal(runGit(repo.directory, ["tag", "--list"]), "");
+  }
+});
+
+test("fixed対象外privateパッケージの追加・削除はタグ判定に影響しない", async (t) => {
+  const added = await fixture(t);
+  const extraDirectory = path.join(added.directory, "packages/private-extra");
+  await mkdir(extraDirectory, { recursive: true });
+  await writeFile(
+    path.join(extraDirectory, "package.json"),
+    JSON.stringify({ name: "@fixture/private-extra", version: "1.0.0", private: true }),
+  );
+  const addedSha = added.finish("add private package");
+  const addedPlan = added.invoke("plan", { env: { GITHUB_SHA: addedSha } });
+  assert.equal(addedPlan.status, 0, addedPlan.stderr);
+
+  const removed = await fixture(t);
+  await rm(path.join(removed.directory, "packages/extension-table"), { recursive: true });
+  const removedSha = removed.finish("remove private package");
+  const removedPlan = removed.invoke("plan", { env: { GITHUB_SHA: removedSha } });
+  assert.equal(removedPlan.status, 0, removedPlan.stderr);
 });
 
 test("既存タグが別SHAを指す場合は失敗し、タグを変更しない", async (t) => {

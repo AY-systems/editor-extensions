@@ -7,22 +7,13 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const targets = new Map([
-  ["@aysys/extension-anchor-link", "packages/extension-anchor-link"],
-  ["@aysys/extension-div", "packages/extension-div"],
-  ["@aysys/extension-node-tag", "packages/extension-node-tag"],
-  ["@aysys/extension-picture", "packages/extension-picture"],
-]);
-const expectedPrivate = new Map([
-  ["@aysys/extension-classname", "packages/extension-classname"],
-  ["@aysys/extension-embed-media", "packages/extension-embed-media"],
-  ["@aysys/extension-table", "packages/extension-table"],
-]);
 
+// 処理を中断し、呼び出し元へエラーの理由を伝える。
 function fail(message) {
   throw new Error(message);
 }
 
+// Gitを実行して前後の空白を除いた標準出力を返し、失敗時は例外にする。
 function git(args, options = {}) {
   const result = spawnSync("git", args, {
     cwd: options.cwd ?? root,
@@ -38,6 +29,7 @@ function git(args, options = {}) {
   return result.stdout.trim();
 }
 
+// Gitの終了コードを呼び出し元で判定できるよう、実行結果をそのまま返す。
 function gitTry(args, options = {}) {
   const result = spawnSync("git", args, {
     cwd: options.cwd ?? root,
@@ -49,18 +41,39 @@ function gitTry(args, options = {}) {
   return result;
 }
 
-function parseManifest(text, source) {
+// JSONオブジェクトを解析し、不正な形式の場合は読み込み元を含めて報告する。
+function parseJson(text, source) {
   try {
     const value = JSON.parse(text);
     if (!value || typeof value !== "object" || Array.isArray(value))
       throw new Error("JSONオブジェクトではありません");
     return value;
   } catch (error) {
-    fail(`${source} のpackage.jsonを解析できません: ${error.message}`);
+    fail(`${source} を解析できません: ${error.message}`);
   }
 }
 
-async function validateWorkspace() {
+// fixed設定とワークスペースを照合し、公開対象のパッケージ名とディレクトリを返す。
+async function releaseTargets() {
+  const changesetConfig = parseJson(
+    await readFile(path.join(root, ".changeset/config.json"), "utf8"),
+    ".changeset/config.json",
+  );
+  if (
+    !Array.isArray(changesetConfig.fixed) ||
+    changesetConfig.fixed.length === 0 ||
+    changesetConfig.fixed.some(
+      (group) =>
+        !Array.isArray(group) ||
+        group.length === 0 ||
+        group.some((name) => typeof name !== "string" || !name),
+    )
+  ) {
+    fail(".changeset/config.json のfixed設定が不正です");
+  }
+  const names = changesetConfig.fixed.flat();
+  if (new Set(names).size !== names.length) fail("fixed設定に重複したパッケージ名があります");
+
   const paths = ["package.json"];
   for (const directory of ["packages", "demos"]) {
     const entries = await readdir(path.join(root, directory), { withFileTypes: true });
@@ -69,12 +82,11 @@ async function validateWorkspace() {
     }
   }
 
-  const publicPackages = new Map();
   const packagePaths = new Map();
   for (const relativePath of paths) {
     let manifest;
     try {
-      manifest = parseManifest(await readFile(path.join(root, relativePath), "utf8"), relativePath);
+      manifest = parseJson(await readFile(path.join(root, relativePath), "utf8"), relativePath);
     } catch (error) {
       if (error.code === "ENOENT") continue;
       throw error;
@@ -83,35 +95,21 @@ async function validateWorkspace() {
     if (typeof manifest.name !== "string" || !manifest.name)
       fail(`${relativePath} にパッケージ名がありません`);
     if (packagePaths.has(manifest.name)) fail(`パッケージ名が重複しています: ${manifest.name}`);
-    packagePaths.set(manifest.name, relativePath.slice(0, -"/package.json".length));
-    if (manifest.private !== true)
-      publicPackages.set(manifest.name, packagePaths.get(manifest.name));
+    packagePaths.set(manifest.name, {
+      directory: relativePath.slice(0, -"/package.json".length),
+      private: manifest.private === true,
+    });
   }
 
-  const sameEntries = (actual, expected) =>
-    actual.size === expected.size &&
-    [...expected].every(([name, directory]) => actual.get(name) === directory);
-  if (!sameEntries(publicPackages, targets)) {
-    fail("非privateパッケージが設計対象の4パッケージと一致しません");
-  }
-  for (const [name, directory] of expectedPrivate) {
-    const manifest = parseManifest(
-      await readFile(path.join(root, directory, "package.json"), "utf8"),
-      directory,
-    );
-    if (manifest.name !== name || manifest.private !== true)
-      fail(`${directory} はprivate設定されている必要があります`);
-  }
-  for (const [name, directory] of targets) {
-    const manifest = parseManifest(
-      await readFile(path.join(root, directory, "package.json"), "utf8"),
-      directory,
-    );
-    if (manifest.name !== name || manifest.private === true)
-      fail(`${directory} は対象の公開パッケージである必要があります`);
-  }
+  return names.map((name) => {
+    const found = packagePaths.get(name);
+    if (!found) fail(`fixed対象のパッケージがworkspaceにありません: ${name}`);
+    if (found.private) fail(`fixed対象のパッケージはprivateにできません: ${name}`);
+    return [name, found.directory];
+  });
 }
 
+// 安全な整数のmajor.minor.patch形式を検証し、比較用の数値配列に変換する。
 function validVersion(value, source) {
   if (typeof value !== "string" || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value)) {
     fail(`${source} のversionがmajor.minor.patch形式ではありません: ${String(value)}`);
@@ -122,6 +120,7 @@ function validVersion(value, source) {
   return parts;
 }
 
+// 数値配列のバージョンを比較し、左が小さければ-1、同じなら0、大きければ1を返す。
 function compareVersions(left, right) {
   for (let index = 0; index < left.length; index += 1) {
     if (left[index] !== right[index]) return left[index] < right[index] ? -1 : 1;
@@ -129,21 +128,25 @@ function compareVersions(left, right) {
   return 0;
 }
 
+// 作業ツリーを変更せず、指定コミットに記録されたpackage.jsonを読み込む。
 function readManifestAt(commit, directory) {
   const output = git(["show", `${commit}:${directory}/package.json`]);
-  return parseManifest(output, `${commit}:${directory}`);
+  return parseJson(output, `${commit}:${directory}/package.json`);
 }
 
+// ローカルのタグ名を取得し、比較しやすいようにソートして返す。
 function currentTags() {
   const result = gitTry(["tag", "--list"]);
   if (result.status !== 0) fail(`Gitタグ一覧を取得できませんでした: ${result.stderr.trim()}`);
   return result.stdout.split(/\r?\n/).filter(Boolean).sort();
 }
 
+// 各コマンドが共有するタグ計画の保存先を、実行環境の一時ディレクトリ内に決める。
 function planPath() {
   return path.join(process.env.RUNNER_TEMP || os.tmpdir(), "tag-plan.json");
 }
 
+// 保存済みのタグ計画を読み込み、対象SHA・タグ名・タグ一覧などの形式を検証する。
 async function readPlan() {
   let plan;
   try {
@@ -165,8 +168,9 @@ async function readPlan() {
   return plan;
 }
 
+// HEADと第一親のバージョンを比較し、全対象の同時更新と増加を検証してタグ計画を保存する。
 async function plan() {
-  await validateWorkspace();
+  const targets = await releaseTargets();
   const head = git(["rev-parse", "HEAD"]);
   const eventSha = process.env.GITHUB_SHA;
   if (!eventSha || head.toLowerCase() !== eventSha.toLowerCase())
@@ -183,8 +187,7 @@ async function plan() {
     const newManifest = readManifestAt(head, directory);
     if (oldManifest.name !== name || newManifest.name !== name)
       fail(`${directory} のパッケージ名が設計と一致しません`);
-    if (oldManifest.private === true || newManifest.private === true)
-      fail(`${name} はprivateにできません`);
+    if (newManifest.private === true) fail(`${name} はprivateにできません`);
     const oldVersion = oldManifest.version;
     const newVersion = newManifest.version;
     if (oldVersion !== newVersion) changed.push({ name, oldVersion, newVersion });
@@ -204,16 +207,15 @@ async function plan() {
     return;
   }
 
-  if (changed.length !== targets.size)
-    fail("対象4パッケージすべてのversionを同時に更新してください");
-  const oldVersions = new Set(versions.map(({ oldVersion }) => oldVersion));
+  if (changed.length !== targets.length)
+    fail("fixed対象の全パッケージのversionを同時に更新してください");
   const newVersions = new Set(versions.map(({ newVersion }) => newVersion));
-  if (oldVersions.size !== 1 || newVersions.size !== 1)
-    fail("対象4パッケージの旧version・新versionが揃っていません");
-  const oldVersion = validVersion(versions[0].oldVersion, targets.keys().next().value);
-  const newVersion = validVersion(versions[0].newVersion, targets.keys().next().value);
-  if (compareVersions(newVersion, oldVersion) <= 0)
-    fail("対象パッケージのversionは増加していません");
+  if (newVersions.size !== 1) fail("fixed対象パッケージの新versionが揃っていません");
+  for (const { name, oldVersion, newVersion } of versions) {
+    const oldParts = validVersion(oldVersion, name);
+    const newParts = validVersion(newVersion, name);
+    if (compareVersions(newParts, oldParts) <= 0) fail(`${name} のversionは増加していません`);
+  }
 
   const tag = `v${versions[0].newVersion}`;
   const existing = gitTry(["rev-parse", "--verify", `${tag}^{commit}`]);
@@ -231,15 +233,18 @@ async function plan() {
   writeOutput("should-tag", "true");
 }
 
+// 保存先ディレクトリを用意し、後続コマンドへ渡すタグ計画をJSONで書き込む。
 async function writePlanFile(value) {
   await mkdir(path.dirname(planPath()), { recursive: true });
   await writeFile(planPath(), `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+// GitHub Actions上で実行している場合に、後続ステップ向けの出力値を追記する。
 function writeOutput(name, value) {
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
 }
 
+// 計画した注釈付きタグを作成し、同じSHAを指す既存タグがあればそのまま維持する。
 async function create() {
   const planFile = await readPlan();
   if (!planFile.shouldTag) return;
@@ -254,6 +259,7 @@ async function create() {
   git(["tag", "-a", planFile.tag, planFile.sha, "-m", planFile.tag]);
 }
 
+// 計画したタグの参照先とタグ一覧を確認し、予定外のタグ追加・削除を検出する。
 async function verify() {
   const planFile = await readPlan();
   if (!planFile.shouldTag) return;
@@ -267,6 +273,7 @@ async function verify() {
     fail("タグ作成後に予定外のタグ変更を検出しました");
 }
 
+// Git設定ファイルを変更せず、子プロセスの環境変数にGitHub認証ヘッダーを追加する。
 function tokenEnvironment(token) {
   if (!token) return process.env;
   const env = { ...process.env };
@@ -278,6 +285,7 @@ function tokenEnvironment(token) {
   return env;
 }
 
+// リモートの同名タグとの衝突を確認し、計画したタグだけを送信して反映結果を検証する。
 async function push() {
   const planFile = await readPlan();
   if (!planFile.shouldTag) return;
