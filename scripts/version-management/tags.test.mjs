@@ -359,9 +359,11 @@ test("fixed設定への追加と除外がタグ対象へ反映される", async 
 test("リリース後に非公開パッケージをfixedへ追加してもChangesetsの更新をタグ付けできる", async (t) => {
   const repo = await fixture(t);
   await repo.setVersions({});
-  repo.finish("既存対象をリリース");
   const manifestPath = path.join(repo.directory, "packages/extension-classname/package.json");
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.version = "0.1.1";
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  repo.finish("既存対象をリリース");
   manifest.private = false;
   await writeFile(manifestPath, JSON.stringify(manifest));
   await repo.setFixed([...targetPackages.map(([name]) => name), manifest.name]);
