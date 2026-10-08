@@ -8,6 +8,7 @@ minimumReleaseAge: 10080 # 7日（分単位）
 catalogMode: strict
 
 catalog:
+  "@changesets/cli": 3.0.2
   "@types/node": ^26
 
   "@tiptap/extension-image": ^3.31.0

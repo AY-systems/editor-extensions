@@ -8,12 +8,16 @@
     "build:demo": "vp run --filter ./demos/page-editor build",
     "build": "vp exec tsc --noEmit -p tsconfig.build.json && vp run --filter ./packages/* build",
     "test": "vp test --dom",
-    "ready": "vp check"
+    "ready": "vp check",
+    "changeset": "changeset",
+    "version-packages": "changeset version && vp install --lockfile-only && vp fmt",
+    "tag-packages": "node scripts/version-management/tags.mjs create"
   },
   "devDependencies": {
     "@tiptap/core": "catalog:",
     "@tiptap/pm": "catalog:",
     "@tiptap/starter-kit": "catalog:",
+    "@changesets/cli": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
