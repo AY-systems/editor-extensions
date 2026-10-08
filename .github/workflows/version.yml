@@ -44,9 +44,9 @@ jobs:
 
       - name: バージョン更新PRを作成
         if: steps.status.outputs.has-releases == 'true'
-        uses: changesets/action/version@v2
+        uses: changesets/action@v2
         with:
-          script: vp run version-packages
+          version-script: vp run version-packages
           pr-base-branch: master
           pr-title: "chore(release): パッケージのバージョンを更新"
           commit-message: "chore(release): パッケージのバージョンを更新"
