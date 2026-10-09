@@ -1,0 +1,99 @@
+name: Package version management
+
+on:
+  push:
+    branches: [master]
+
+permissions: {}
+
+concurrency:
+  group: version-master
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1.19.0
+        with:
+          node-version: 24
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Check pending releases
+        id: status
+        run: |
+          vp exec changeset status --output "$RUNNER_TEMP/changeset-status.json"
+          node --input-type=module -e '
+            import { appendFileSync, readFileSync } from "node:fs";
+            const status = JSON.parse(readFileSync(`${process.env.RUNNER_TEMP}/changeset-status.json`, "utf8"));
+            if (!Array.isArray(status.releases)) throw new Error("releasesが配列ではありません");
+            appendFileSync(process.env.GITHUB_OUTPUT, `has-releases=${status.releases.length > 0}\n`);
+          '
+
+      - name: バージョン更新PRを作成
+        if: steps.status.outputs.has-releases == 'true'
+        uses: changesets/action@v2
+        with:
+          version-script: vp run version-packages
+          pr-base-branch: master
+          pr-title: "chore(release): パッケージのバージョンを更新"
+          commit-message: "chore(release): パッケージのバージョンを更新"
+
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Plan tag
+        id: plan
+        run: node scripts/version-management/tags.mjs plan
+
+      - name: Set up Vite+
+        if: steps.plan.outputs.should-tag == 'true'
+        uses: voidzero-dev/setup-vp@v1.19.0
+        with:
+          node-version: 24
+          cache: true
+
+      - name: Install dependencies
+        if: steps.plan.outputs.should-tag == 'true'
+        run: vp install --frozen-lockfile
+
+      - name: Configure tag committer
+        if: steps.plan.outputs.should-tag == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create common version tag
+        if: steps.plan.outputs.should-tag == 'true'
+        run: vp run tag-packages
+
+      - name: Verify common version tag
+        if: steps.plan.outputs.should-tag == 'true'
+        run: node scripts/version-management/tags.mjs verify
+
+      - name: Push common version tag
+        if: steps.plan.outputs.should-tag == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/version-management/tags.mjs push
