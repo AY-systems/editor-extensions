@@ -1,10 +1,5 @@
 import { Extension } from "@tiptap/core";
-import {
-  Table as TiptapTable,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@tiptap/extension-table";
+import { Table as TiptapTable, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
 import type {
   TableCellOptions,
   TableHeaderOptions,
@@ -33,7 +28,7 @@ export const TableKit = Extension.create<TableKitOptions>({
     if (this.options.table !== false) {
       extensions.push(
         Table.configure({
-          ...(this.options.table ?? {}),
+          ...this.options.table,
           View: StyledTableView,
         }),
       );

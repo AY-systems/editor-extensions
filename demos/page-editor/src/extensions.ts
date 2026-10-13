@@ -19,5 +19,5 @@ export const advancedExtensions = [
   Grid,
   Sticky,
   PictureKit,
-  TableKit,
+  TableKit.configure({ table: { resizable: true } }),
 ];

@@ -1,37 +1,54 @@
 import { TableView } from "@tiptap/extension-table";
 import type { Node } from "@tiptap/pm/model";
+import type { EditorView } from "@tiptap/pm/view";
+
+const TABLE_STYLE_ATTRIBUTES: Record<string, string> = {
+  borderWidth: "border-width",
+  borderStyle: "border-style",
+  borderColor: "border-color",
+  backgroundColor: "background-color",
+};
+
+const TABLE_DIMENSION_ATTRIBUTES = ["width", "height"] as const;
 
 export class StyledTableView extends TableView {
+  constructor(
+    node: Node,
+    cellMinWidth: number,
+    view?: EditorView,
+    HTMLAttributes?: Record<string, unknown>,
+  ) {
+    super(node, cellMinWidth, view, HTMLAttributes);
+    this.syncTableAttributes(node);
+  }
+
   update(node: Node) {
     const previousNode = this.node;
     if (!super.update(node)) return false;
 
-    this.updateTableAttributes(node, previousNode);
+    this.syncTableAttributes(node, previousNode);
     return true;
   }
 
-  private updateTableAttributes(node: Node, previousNode: Node) {
-    const styleAttributes: Record<string, string> = {
-      borderWidth: "border-width",
-      borderStyle: "border-style",
-      borderColor: "border-color",
-      backgroundColor: "background-color",
-    };
-
-    for (const [attribute, property] of Object.entries(styleAttributes)) {
-      if (node.attrs[attribute] === previousNode.attrs[attribute]) continue;
-
+  private syncTableAttributes(node: Node, previousNode?: Node) {
+    for (const [attribute, property] of Object.entries(TABLE_STYLE_ATTRIBUTES)) {
       const value = node.attrs[attribute];
-      this.table.style.setProperty(property, typeof value === "string" ? value : "");
+      if (previousNode && value === previousNode.attrs[attribute]) continue;
+
+      if (typeof value === "string" && value) {
+        this.table.style.setProperty(property, value);
+      } else if (previousNode) {
+        this.table.style.removeProperty(property);
+      }
     }
 
-    for (const attribute of ["width", "height"] as const) {
-      if (node.attrs[attribute] === previousNode.attrs[attribute]) continue;
-
+    for (const attribute of TABLE_DIMENSION_ATTRIBUTES) {
       const value = node.attrs[attribute];
+      if (previousNode && value === previousNode.attrs[attribute]) continue;
+
       if (typeof value === "string" && value) {
         this.table.setAttribute(attribute, value);
-      } else {
+      } else if (previousNode) {
         this.table.removeAttribute(attribute);
       }
     }
