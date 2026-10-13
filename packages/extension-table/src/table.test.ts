@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
 import { createEditor, destroyEditor } from "../../../tests/helpers";
-import { Table } from "./table";
+import { TableKit } from "./table";
 
 describe("Table", () => {
   it("ヘッダー行付きのテーブルを作成できる", () => {
-    const { editor } = createEditor([Table]);
+    const { editor } = createEditor([TableKit]);
 
     expect(editor.commands.insertTable({ rows: 2, cols: 3, withHeaderRow: true })).toBe(true);
     const rows = editor.view.dom.querySelectorAll("table tr");
@@ -17,7 +17,7 @@ describe("Table", () => {
   });
 
   it("ヘッダー行なしのテーブルを作成できる", () => {
-    const { editor } = createEditor([Table]);
+    const { editor } = createEditor([TableKit]);
 
     expect(editor.commands.insertTable({ rows: 2, cols: 2, withHeaderRow: false })).toBe(true);
     const rows = editor.view.dom.querySelectorAll("table tr");
