@@ -10,13 +10,23 @@ export interface TableAttributeValues {
 }
 
 export type TableAttributeName = keyof TableAttributeValues;
+export type TableAttributeNodeType = "table" | "tableRow" | "tableCell" | "tableHeader";
 
-export const TableAttributes = Extension.create({
+export interface TableAttributesOptions {
+  types: TableAttributeNodeType[];
+}
+
+export const TableAttributes = Extension.create<TableAttributesOptions>({
   name: "tableAttributes",
+  addOptions() {
+    return {
+      types: ["table", "tableRow", "tableCell", "tableHeader"],
+    };
+  },
   addGlobalAttributes() {
     return [
       {
-        types: ["table", "tableRow", "tableCell", "tableHeader"],
+        types: this.options.types,
         attributes: {
           width: {
             default: "",
