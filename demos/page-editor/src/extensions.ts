@@ -5,7 +5,7 @@ import { AnchorLink } from "@aysys/extension-anchor-link";
 import { Div, Grid, Sticky } from "@aysys/extension-div";
 import { EmbedMedia } from "@aysys/extension-embed-media";
 import { PictureKit } from "@aysys/extension-picture";
-import { Table } from "@aysys/extension-table";
+import { TableKit } from "@aysys/extension-table";
 
 export const requiredExtensions = [StarterKit];
 
@@ -19,5 +19,5 @@ export const advancedExtensions = [
   Grid,
   Sticky,
   PictureKit,
-  Table,
+  TableKit.configure({ table: { resizable: true } }),
 ];

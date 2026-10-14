@@ -1,227 +1,55 @@
-import type { DOMOutputSpec } from "@tiptap/pm/model";
-import { Extension, mergeAttributes } from "@tiptap/core";
-import {
-  Table as TiptapTable,
-  TableCell as TiptapTableCell,
-  TableHeader as TiptapTableHeader,
-  TableRow as TiptapTableRow,
+import { Extension } from "@tiptap/core";
+import { Table as TiptapTable, TableCell, TableHeader, TableRow } from "@tiptap/extension-table";
+import type {
+  TableCellOptions,
+  TableHeaderOptions,
+  TableOptions,
+  TableRowOptions,
 } from "@tiptap/extension-table";
 
-import { TextSelection } from "@tiptap/pm/state";
+import { TableAttributes, type TableAttributesOptions } from "./table-attributes";
+import { StyledTableView } from "./table-view";
 
-export const TableRow = TiptapTableRow;
+export interface TableKitOptions {
+  table: Partial<TableOptions> | false;
+  tableCell: Partial<TableCellOptions> | false;
+  tableHeader: Partial<TableHeaderOptions> | false;
+  tableRow: Partial<TableRowOptions> | false;
+  tableAttributes: Partial<TableAttributesOptions> | false;
+}
 
-const tableCellAttributes = {
-  // 列追加に必要
-  colspan: {
-    default: 1,
-  },
-  // 行追加に必要
-  rowspan: {
-    default: 1,
-  },
-  width: {
-    default: "",
-    parseHTML: (element: HTMLElement) =>
-      element.getAttribute("colWidth") || element.getAttribute("width") || element.style.width,
-    renderHTML: (attributes: { width: string }) => {
-      if (attributes.width === "") return;
-      return {
-        width: `${attributes.width}`,
-      };
-    },
-  },
-  height: {
-    default: "",
-    parseHTML: (element: HTMLElement) =>
-      element.getAttribute("colHeight") || element.getAttribute("height") || element.style.height,
-    renderHTML: (attributes: { height: string }) => {
-      if (attributes.height === "") return;
-      return {
-        height: `${attributes.height}`,
-      };
-    },
-  },
-};
+export const Table = TiptapTable.configure({ View: StyledTableView });
 
-export const TableCell = TiptapTableCell.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      ...tableCellAttributes,
-    };
-  },
-});
-
-export const TableHeader = TiptapTableHeader.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      ...tableCellAttributes,
-    };
-  },
-});
-
-export const TableDecoration = Extension.create({
-  name: "tableDecoration",
-  addOptions() {
-    return {
-      types: ["table", "tableRow", "tableCell", "tableHeader"],
-    };
-  },
-
-  addGlobalAttributes() {
-    return [
-      {
-        types: this.options.types,
-        attributes: {
-          borderWidth: {
-            default: "",
-            parseHTML: (element) => element.style.borderWidth,
-            renderHTML: (attributes) => {
-              if (attributes.borderWidth === "") return null;
-              return {
-                style: `border-width:${attributes.borderWidth};`,
-              };
-            },
-          },
-          borderStyle: {
-            default: "",
-            parseHTML: (element) => element.style.borderStyle,
-            renderHTML: (attributes) => {
-              if (attributes.borderStyle === "") return null;
-              return {
-                style: `border-style:${attributes.borderStyle};`,
-              };
-            },
-          },
-          borderColor: {
-            default: "",
-            parseHTML: (element) => element.style.borderColor,
-            renderHTML: (attributes) => {
-              if (attributes.borderColor === "") return null;
-              return {
-                style: `border-color:${attributes.borderColor};`,
-              };
-            },
-          },
-          backgroundColor: {
-            default: "",
-            parseHTML: (element) => element.style.backgroundColor,
-            renderHTML: (attributes) => {
-              if (attributes.backgroundColor === "") return null;
-              return {
-                style: `background-color:${attributes.backgroundColor};`,
-              };
-            },
-          },
-        },
-      },
-    ];
-  },
-});
-// テーブル拡張
-export const Table = TiptapTable.extend({
-  renderHTML({ node, HTMLAttributes }) {
-    const parentTable = this.parent?.({ node, HTMLAttributes });
-    const parentChildren = Array.isArray(parentTable) ? parentTable.slice(2) : [];
-    const table: DOMOutputSpec = [
-      "table",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {}),
-      ...parentChildren,
-    ];
-
-    return table;
-  },
-
-  // テーブル関連のextensionをまとめて読み込む
+export const TableKit = Extension.create<TableKitOptions>({
+  name: "tableKit",
   addExtensions() {
-    return [TableRow, TableCell, TableHeader, TableDecoration];
-  },
+    const extensions = [];
 
-  addCommands() {
-    return {
-      ...this.parent?.(),
-      insertTable:
-        ({ rows = 3, cols = 3, withHeaderRow = true } = {}) =>
-        ({ tr, dispatch, state }) => {
-          // セルの作成
-          const tableCells = [];
-          const headerCells = [];
-          for (let i = 0; i < cols; i++) {
-            const cell = state.schema.nodes.tableCell.createAndFill({
-              width: `${100 / cols}%`,
-            });
-            tableCells.push(cell);
+    if (this.options.table !== false) {
+      extensions.push(
+        Table.configure({
+          ...this.options.table,
+          View: StyledTableView,
+        }),
+      );
+    }
 
-            // ヘッダーセルが有効な場合
-            if (withHeaderRow) {
-              const headerCell = state.schema.nodes.tableHeader.createAndFill({
-                width: `${100 / cols}%`,
-              });
-              if (headerCell) {
-                headerCells.push(headerCell);
-              }
-            }
-          }
+    if (this.options.tableCell !== false) {
+      extensions.push(TableCell.configure(this.options.tableCell ?? {}));
+    }
 
-          // 行の作成
-          const tableRows = [];
-          for (let i = 0; i < rows; i++) {
-            const row = state.schema.nodes.tableRow.createChecked(
-              {},
-              // ヘッダーセルが有効な場合ヘッダー行を追加する
-              withHeaderRow && i === 0 ? headerCells : tableCells.filter((cell) => cell !== null),
-            );
-            tableRows.push(row);
-          }
+    if (this.options.tableHeader !== false) {
+      extensions.push(TableHeader.configure(this.options.tableHeader ?? {}));
+    }
 
-          // テーブルの作成
-          const table = state.schema.nodes.table.createChecked({ style: "width:100%;" }, tableRows);
+    if (this.options.tableRow !== false) {
+      extensions.push(TableRow.configure(this.options.tableRow ?? {}));
+    }
 
-          // テーブルの挿入
-          if (dispatch) {
-            const offset = tr.selection.from + 1;
-            tr.replaceSelectionWith(table)
-              .scrollIntoView()
-              .setSelection(TextSelection.near(tr.doc.resolve(offset)));
-          }
+    if (this.options.tableAttributes !== false) {
+      extensions.push(TableAttributes.configure(this.options.tableAttributes ?? {}));
+    }
 
-          return true;
-        },
-    };
-  },
-
-  addAttributes() {
-    return {
-      width: {
-        default: "100%",
-        parseHTML: (element) =>
-          element.getAttribute("tableWidth") ||
-          element.getAttribute("width") ||
-          element.style.width ||
-          undefined,
-        renderHTML: (attributes) => {
-          if (attributes.width === "") return;
-          return {
-            width: `${attributes.width}`,
-          };
-        },
-      },
-      height: {
-        default: "auto",
-        parseHTML: (element) =>
-          element.getAttribute("tableHeight") ||
-          element.getAttribute("height") ||
-          element.style.height ||
-          undefined,
-        renderHTML: (attributes) => {
-          if (attributes.height === "") return;
-          return {
-            height: `${attributes.height}`,
-          };
-        },
-      },
-    };
+    return extensions;
   },
 });
