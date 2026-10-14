@@ -11,12 +11,12 @@ catalog:
   "@changesets/cli": 3.0.2
   "@types/node": ^26
 
-  "@tiptap/extension-image": ^3.31.0
-  "@tiptap/extension-table": ^3.31.0
-  "@tiptap/core": ^3.31.0
-  "@tiptap/pm": ^3.31.0
-  "@tiptap/starter-kit": "^3.31.0"
-  "@tiptap/vue-3": "^3.31.0"
+  "@tiptap/extension-image": ^3.31.4
+  "@tiptap/extension-table": ^3.31.4
+  "@tiptap/core": ^3.31.4
+  "@tiptap/pm": ^3.31.4
+  "@tiptap/starter-kit": "^3.31.4"
+  "@tiptap/vue-3": "^3.31.4"
 
   happy-dom: ^20.14.5
 
