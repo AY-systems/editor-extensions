@@ -8,7 +8,7 @@ minimumReleaseAge: 10080 # 7日（分単位）
 catalogMode: strict
 
 catalog:
-  "@changesets/cli": 3.0.2
+  "@changesets/cli": 3.0.3
   "@types/node": ^26
 
   "@tiptap/extension-image": ^3.31.0
@@ -20,10 +20,10 @@ catalog:
 
   happy-dom: ^20.14.5
 
-  typescript: 6.0.3
+  typescript: 7.0.2
   vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vite-plus: 1.0.0
-  vue-tsc: ^3.0.8
+  vite-plus: 1.1.0
+  vue-tsc: ^3.3.12
 
   #demo's dependencies
   "@tailwindcss/vite": "^4.3.3"
